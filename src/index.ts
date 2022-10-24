@@ -14,7 +14,7 @@ interface IButton {
 }
 
 interface IMegaBoard {
-    board: MiniBoard[];
+    boards: MiniBoard[];
     winner: Player;
 }
 
@@ -32,6 +32,11 @@ class Button implements IButton {
         this.element.innerText = this.ocupence;
         this.element.id = this.id;
         this.element.className = "button";
+    }
+
+    public setOcupence(player: Player) {
+        this.ocupence = player;
+        this.element.innerText = this.ocupence;
     }
 }
 
@@ -59,7 +64,7 @@ function addElements(): IMegaBoard {
     let count = 0;
     const boardTable = document.getElementById("board")!;// '!' to make sure not null
     const megaBoard: IMegaBoard = {
-        board: [],
+        boards: [],
         winner: Player.none
     };
     // loop to create table with buttons
@@ -71,8 +76,9 @@ function addElements(): IMegaBoard {
             // every mega board data cell
             const col = document.createElement("td");
             // every mini board table element
-            const miniBoard = new MiniBoard(`mini-board-${count}`, document.createElement("table"));
+            const miniBoard = new MiniBoard(`mini-board-${j + i*MINI_SIZE}`, document.createElement("table"));
 
+            count = 0;
             for(let l = 0; l < MINI_SIZE; l++){
                 // every mini board row
                 const miniRow = document.createElement("tr");
@@ -90,208 +96,41 @@ function addElements(): IMegaBoard {
             }
             col.appendChild(miniBoard.element);
             row.appendChild(col);
-            megaBoard.board.push(miniBoard);
+            megaBoard.boards.push(miniBoard);
         }
         boardTable.appendChild(row);
     }
     return megaBoard;
 }
 
-document.body.onload = addElements;
 
+function createBorders(boards: MiniBoard[]): void {
+    const rightBorder = [0, 1, 3, 4, 6, 7];
+    const bottomBorder = [0, 1, 2, 3, 4, 5];
+    const leftBorder = [1, 2, 4, 5, 7, 8];
+    const topBorder = [3, 4, 5, 6, 7, 8];
+    const settings = "5px solid black";
 
-/**
- * function addElements() {
-    let count = 0;
-    const board = document.getElementById("board")!;// '!' to make sure not null
-    // and give it some content
-    for(let i = 0; i < MEGA_SIZE; i++){  
-        for(let j = 0; j < MEGA_SIZE; j++){
-            const newButton = document.createElement("button");
-            newButton.innerText = count.toString();
-            newButton.id = count.toString();
-            newButton.className = "button"
-            // add the text node to the newly created div
-            board.appendChild(newButton);
-            count++;
+    for(let i = 0; i < boards.length; i++){
+        for (const boardNum of rightBorder) {
+            boards[boardNum].element.style.borderRight = settings;
+            boards[i].buttons[boardNum].element.style.borderRight = settings;
         }
-        board.appendChild(document.createElement("br"));
+        for (const boardNum of leftBorder) {
+            boards[boardNum].element.style.borderLeft = settings;
+            boards[i].buttons[boardNum].element.style.borderLeft = settings;
+        }
+        for (const boardNum of topBorder) {
+            boards[boardNum].element.style.borderTop = settings;
+            boards[i].buttons[boardNum].element.style.borderTop = settings;
+        }
+        for (const boardNum of bottomBorder) {
+            boards[boardNum].element.style.borderBottom = settings;
+            boards[i].buttons[boardNum].element.style.borderBottom = settings;
+        }
     }
-<tr>
-            <td>
-                <table>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                </table>
-            </td>
-            <td>
-                <table>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                </table>
-            </td>
-            <td>
-                <table>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <table>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                </table>
-            </td>
-            <td>
-                <table>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                </table>
-            </td>
-            <td>
-                <table>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <table>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                </table>
-            </td>
-            <td>
-                <table>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                </table>
-            </td>
-            <td>
-                <table>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                    <tr>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                        <td><button>asdf</button></td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
- */
+}
+
+
+const megaBoard = addElements();
+createBorders(megaBoard.boards);
