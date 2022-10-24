@@ -29,16 +29,34 @@ class MiniBoard {
 }
 function addElements() {
     let count = 0;
-    const board = document.getElementById("board");
-    for (let i = 0; i < MEGA_SIZE; i++) {
-        for (let j = 0; j < MEGA_SIZE; j++) {
-            const newButton = document.createElement("button");
-            newButton.innerText = count.toString();
-            newButton.id = count.toString();
-            newButton.className = "button";
-            board.appendChild(newButton);
-            count++;
+    const boardTable = document.getElementById("board");
+    const megaBoard = {
+        board: [],
+        winner: Player.none
+    };
+    for (let i = 0; i < MINI_SIZE; i++) {
+        const row = document.createElement("tr");
+        for (let j = 0; j < MINI_SIZE; j++) {
+            const col = document.createElement("td");
+            const miniBoard = new MiniBoard(`mini-board-${count}`, document.createElement("table"));
+            for (let l = 0; l < MINI_SIZE; l++) {
+                const miniRow = document.createElement("tr");
+                for (let m = 0; m < MINI_SIZE; m++) {
+                    const td = document.createElement("td");
+                    const btn = new Button(`button-${count}`, document.createElement("button"));
+                    miniBoard.buttons.push(btn);
+                    td.appendChild(btn.element);
+                    miniRow.appendChild(td);
+                    count++;
+                }
+                miniBoard.element.appendChild(miniRow);
+            }
+            col.appendChild(miniBoard.element);
+            row.appendChild(col);
+            megaBoard.board.push(miniBoard);
         }
-        board.appendChild(document.createElement("br"));
+        boardTable.appendChild(row);
     }
+    return megaBoard;
 }
+document.body.onload = addElements;
