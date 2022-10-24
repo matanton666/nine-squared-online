@@ -32,6 +32,7 @@ class Button implements IButton {
         this.element.innerText = this.ocupence;
         this.element.id = this.id;
         this.element.className = "button";
+        this.element.style.borderSpacing = "0";
     }
 
     public setOcupence(player: Player) {
@@ -54,6 +55,8 @@ class MiniBoard {
 
         this.element.id = this.id;
         this.element.className = "mini-board";
+        this.element.style.borderSpacing = "0";
+        this.element.style.padding = "0";
     }
 }
 
@@ -109,24 +112,26 @@ function createBorders(boards: MiniBoard[]): void {
     const bottomBorder = [0, 1, 2, 3, 4, 5];
     const leftBorder = [1, 2, 4, 5, 7, 8];
     const topBorder = [3, 4, 5, 6, 7, 8];
-    const settings = "5px solid black";
+    const settings = "4px solid black";
+    const miniSettings = "1px solid black";
+
 
     for(let i = 0; i < boards.length; i++){
         for (const boardNum of rightBorder) {
             boards[boardNum].element.style.borderRight = settings;
-            boards[i].buttons[boardNum].element.style.borderRight = settings;
+            boards[i].buttons[boardNum].element.style.borderRight = miniSettings;
         }
         for (const boardNum of leftBorder) {
             boards[boardNum].element.style.borderLeft = settings;
-            boards[i].buttons[boardNum].element.style.borderLeft = settings;
+            boards[i].buttons[boardNum].element.style.borderLeft = miniSettings;
         }
         for (const boardNum of topBorder) {
             boards[boardNum].element.style.borderTop = settings;
-            boards[i].buttons[boardNum].element.style.borderTop = settings;
+            boards[i].buttons[boardNum].element.style.borderTop = miniSettings;
         }
         for (const boardNum of bottomBorder) {
             boards[boardNum].element.style.borderBottom = settings;
-            boards[i].buttons[boardNum].element.style.borderBottom = settings;
+            boards[i].buttons[boardNum].element.style.borderBottom = miniSettings;
         }
     }
 }
