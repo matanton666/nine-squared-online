@@ -22,3 +22,8 @@ tr,td{
     background-color: #000000 ;
     color: #FFFFFF;
 }
+
+.button:disabled {
+    background-color: gainsboro;
+    color: #000000;
+}

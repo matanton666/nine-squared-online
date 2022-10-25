@@ -15,11 +15,19 @@ class Button {
         this.element.innerText = this.ocupence;
         this.element.id = this.id;
         this.element.className = "button";
-        this.element.style.borderSpacing = "0";
+        this.setOnclick();
     }
     setOcupence(player) {
         this.ocupence = player;
         this.element.innerText = this.ocupence;
+    }
+    setOnclick() {
+        this.element.onclick = () => {
+            if (this.ocupence === Player.none) {
+                this.setOcupence(currentTurn);
+                afterTurn(this.element);
+            }
+        };
     }
 }
 class MiniBoard {
@@ -34,7 +42,7 @@ class MiniBoard {
         this.element.style.padding = "0";
     }
 }
-function addElements() {
+function createBoard() {
     let count = 0;
     const boardTable = document.getElementById("board");
     const megaBoard = {
@@ -67,7 +75,7 @@ function addElements() {
     }
     return megaBoard;
 }
-function createBorders(boards) {
+function addBorders(boards) {
     const rightBorder = [0, 1, 3, 4, 6, 7];
     const bottomBorder = [0, 1, 2, 3, 4, 5];
     const leftBorder = [1, 2, 4, 5, 7, 8];
@@ -93,6 +101,13 @@ function createBorders(boards) {
         }
     }
 }
-const megaBoard = addElements();
-createBorders(megaBoard.boards);
+function afterTurn(element) {
+    element.disabled = true;
+    currentTurn = currentTurn === Player.X ? Player.O : Player.X;
+    document.getElementById("turn").innerText = currentTurn + " turn";
+    return megaBoard.winner;
+}
+var currentTurn = Player.X;
+const megaBoard = createBoard();
+addBorders(megaBoard.boards);
 //# sourceMappingURL=index.js.map
