@@ -2,15 +2,18 @@ const MEGA_SIZE = 9;
 const MINI_SIZE = 3;
 
 
+// ********* classes and interfaces *********
 
 enum Player {
     X = "X",
     O = "O",
-    none = "-"
+    none = "-",
+    tie = "tie"
 }
 
 interface IButton {
     id: string;
+    parentId: number;
     ocupence: Player;
     element: HTMLButtonElement;
 }
@@ -24,14 +27,16 @@ interface IMegaBoard {
 
 class Button implements IButton {
     id: string;
+    parentId: number;
     ocupence: Player;
     element: HTMLButtonElement;
 
     // create button element and set its parameters
-    constructor(id: string, element: HTMLButtonElement) {
+    constructor(id: string, element: HTMLButtonElement, parent: number) {
         this.id = id;
         this.ocupence = Player.none;
         this.element = element;
+        this.parentId = parent;
         // set element settings
         this.element.innerText = this.ocupence;
         this.element.id = this.id;
@@ -50,7 +55,7 @@ class Button implements IButton {
             if (this.ocupence === Player.none) {
                 this.setOcupence(currentTurn);
                 // after turn checks
-                afterTurn(this.element);
+                afterTurn(this.element, this.id, this.parentId);
                 // change turn
                 
             }
@@ -79,7 +84,7 @@ class MiniBoard {
 }
 
 
-
+// ***** fucntions for board creation *****
 /**
  * creates the game board of one big table with 9 mini tables in it
  * each mini table has 9 buttons in it
@@ -103,7 +108,7 @@ function createBoard(): IMegaBoard {
             // every mini board table element
             const miniBoard = new MiniBoard(`mini-board-${j + i*MINI_SIZE}`, document.createElement("table"));
 
-            count = 0;
+            count = 0; // 1-9 buttons in mini board
             for(let l = 0; l < MINI_SIZE; l++){
                 // every mini board row
                 const miniRow = document.createElement("tr");
@@ -111,7 +116,7 @@ function createBoard(): IMegaBoard {
                 for(let m = 0; m < MINI_SIZE; m++){
                     // every button in mini board 
                     const td = document.createElement("td");
-                    const btn = new Button(`button-${count}`, document.createElement("button"));
+                    const btn = new Button(`button-${count}`, document.createElement("button"), (j + i*MINI_SIZE));
                     miniBoard.buttons.push(btn);
                     
                     td.appendChild(btn.element);
@@ -162,20 +167,110 @@ function addBorders(boards: MiniBoard[]): void {
     }
 }
 
-/*
-// sets the player that is put when clicking a button
-const setTurn = (boards: MiniBoard[], player: Player) => {
-    document.getElementById("turn")!.innerText = player + "'s turn";
-    boards.forEach(board => {
-        board.buttons.forEach(btn => {
-            btn.setOnclick() }) 
-        });
+
+
+
+// ***************************** fuctions for game logic *****************************
+
+/**
+ * gives a random number between 0 and 9 for a random mini board to be selected
+ * @returns id of free mini board
+ */
+const randomBoard = (): number => {
+    let rand = Math.floor(Math.random() * MEGA_SIZE+1);
+    if (megaBoard.boards[rand].winner !== Player.none) {
+        return randomBoard();
+    }
+    return rand;
 }
-*/
 
-function afterTurn(element: HTMLButtonElement): Player{
+/**
+ * disables all buttons in the board except the one that can be played
+ * @param id id of button that was clicked
+ */
+function disableMiniBoardsByButton(id: string){
+    // disable all mini boards buttons
+    megaBoard.boards.forEach(board => {
+        board.buttons.forEach(button => {
+            button.element.disabled = true;
+        });
+    });
+
+    id = id.split("-")[1]; // get rid of 'button-' part
+    let playingBoard = megaBoard.boards[parseInt(id)]
+    if (playingBoard.winner !== Player.none){ // board is full
+        randomBoard();
+    }
+
+    playingBoard.buttons.forEach(button => { // enable buttons in playing board
+        if (button.ocupence === Player.none) {
+            button.element.disabled = false;
+        }
+    });
+
+}
+
+// ***** functions for checking winner in boards *****
+// functions to determine if a player won in a row colomn or diagonal
+const allEqualMini = (arr: MiniBoard[]) => arr.every(
+    v => v.winner === arr[0].winner &&
+    v.winner !== Player.none &&
+    v.winner !== Player.tie); 
+const allEqualbutton = (arr: Button[]) => arr.every(
+    v => v.ocupence === arr[0].ocupence && 
+    v.ocupence !== Player.none) ; 
+
+const checkMiniBoard = (all: MiniBoard[][]): Player => {
+    for (const list of all) {
+        if (allEqualMini(list)){
+            return list[0].winner;
+        }
+    }
+    return Player.none;
+}
+const checkButtons = (all: Button[][]): Player => {
+    for (const list of all) {
+        if (allEqualbutton(list)){
+            return list[0].ocupence;
+        }
+    }
+    return Player.none;
+}
+
+function checkBoardWin(board: MiniBoard[] | Button[]): Player {
+    let col1 = [], col2 = [], col3 = [], diag1 = [], diag2 = [], row1 = [], row2 = [], row3 = [];
+    // get all rows and colomns and diagonals to checks
+    for(let i = 0; i < MEGA_SIZE; i++){
+        row1.push(board[i]);
+        row2.push(board[i+3]);
+        row3.push(board[i+6]);
+        col1.push(board[i*3]);
+        col2.push(board[i*3+1]);
+        col3.push(board[i*3+2]);
+        diag1.push(board[i*4]);
+        diag2.push(board[i*2+2]);
+    }
+
+    let all:any = [col1, col2, col3, diag1, diag2, row1, row2, row3];
+    
+    if (board[0] instanceof MiniBoard){
+        return checkMiniBoard(all);
+    }
+    return checkButtons(all);
+}
+
+
+function afterTurn(element: HTMLButtonElement, id: string, parentId: number): Player{
     element.disabled = true;
-
+    // check if win in mini board
+    megaBoard.boards[parentId].winner = checkBoardWin(megaBoard.boards[parentId].buttons);
+    // check if win in mega board
+    megaBoard.winner = checkBoardWin(megaBoard.boards)
+    if (megaBoard.winner !== Player.none){
+        document.getElementById("turn")!.innerText = "payer won! " + megaBoard.winner;// TODO: make a proper win screen
+    }
+    // disable none usable mini boards according to the button pressed
+    disableMiniBoardsByButton(id);
 
     currentTurn = currentTurn === Player.X ? Player.O : Player.X;
     document.getElementById("turn")!.innerText = currentTurn + " turn";

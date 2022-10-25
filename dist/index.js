@@ -6,12 +6,14 @@ var Player;
     Player["X"] = "X";
     Player["O"] = "O";
     Player["none"] = "-";
+    Player["tie"] = "tie";
 })(Player || (Player = {}));
 class Button {
-    constructor(id, element) {
+    constructor(id, element, parent) {
         this.id = id;
         this.ocupence = Player.none;
         this.element = element;
+        this.parentId = parent;
         this.element.innerText = this.ocupence;
         this.element.id = this.id;
         this.element.className = "button";
@@ -25,7 +27,7 @@ class Button {
         this.element.onclick = () => {
             if (this.ocupence === Player.none) {
                 this.setOcupence(currentTurn);
-                afterTurn(this.element);
+                afterTurn(this.element, this.id, this.parentId);
             }
         };
     }
@@ -59,7 +61,7 @@ function createBoard() {
                 const miniRow = document.createElement("tr");
                 for (let m = 0; m < MINI_SIZE; m++) {
                     const td = document.createElement("td");
-                    const btn = new Button(`button-${count}`, document.createElement("button"));
+                    const btn = new Button(`button-${count}`, document.createElement("button"), (j + i * MINI_SIZE));
                     miniBoard.buttons.push(btn);
                     td.appendChild(btn.element);
                     miniRow.appendChild(td);
@@ -101,8 +103,77 @@ function addBorders(boards) {
         }
     }
 }
-function afterTurn(element) {
+const randomBoard = () => {
+    let rand = Math.floor(Math.random() * MEGA_SIZE + 1);
+    if (megaBoard.boards[rand].winner !== Player.none) {
+        return randomBoard();
+    }
+    return rand;
+};
+function disableMiniBoardsByButton(id) {
+    megaBoard.boards.forEach(board => {
+        board.buttons.forEach(button => {
+            button.element.disabled = true;
+        });
+    });
+    id = id.split("-")[1];
+    let playingBoard = megaBoard.boards[parseInt(id)];
+    if (playingBoard.winner !== Player.none) {
+        randomBoard();
+    }
+    playingBoard.buttons.forEach(button => {
+        if (button.ocupence === Player.none) {
+            button.element.disabled = false;
+        }
+    });
+}
+const allEqualMini = (arr) => arr.every(v => v.winner === arr[0].winner &&
+    v.winner !== Player.none &&
+    v.winner !== Player.tie);
+const allEqualbutton = (arr) => arr.every(v => v.ocupence === arr[0].ocupence &&
+    v.ocupence !== Player.none);
+const checkMiniBoard = (all) => {
+    for (const list of all) {
+        if (allEqualMini(list)) {
+            return list[0].winner;
+        }
+    }
+    return Player.none;
+};
+const checkButtons = (all) => {
+    for (const list of all) {
+        if (allEqualbutton(list)) {
+            return list[0].ocupence;
+        }
+    }
+    return Player.none;
+};
+function checkBoardWin(board) {
+    let col1 = [], col2 = [], col3 = [], diag1 = [], diag2 = [], row1 = [], row2 = [], row3 = [];
+    for (let i = 0; i < MEGA_SIZE; i++) {
+        row1.push(board[i]);
+        row2.push(board[i + 3]);
+        row3.push(board[i + 6]);
+        col1.push(board[i * 3]);
+        col2.push(board[i * 3 + 1]);
+        col3.push(board[i * 3 + 2]);
+        diag1.push(board[i * 4]);
+        diag2.push(board[i * 2 + 2]);
+    }
+    let all = [col1, col2, col3, diag1, diag2, row1, row2, row3];
+    if (board[0] instanceof MiniBoard) {
+        return checkMiniBoard(all);
+    }
+    return checkButtons(all);
+}
+function afterTurn(element, id, parentId) {
     element.disabled = true;
+    megaBoard.boards[parentId].winner = checkBoardWin(megaBoard.boards[parentId].buttons);
+    megaBoard.winner = checkBoardWin(megaBoard.boards);
+    if (megaBoard.winner !== Player.none) {
+        document.getElementById("turn").innerText = "payer won! " + megaBoard.winner;
+    }
+    disableMiniBoardsByButton(id);
     currentTurn = currentTurn === Player.X ? Player.O : Player.X;
     document.getElementById("turn").innerText = currentTurn + " turn";
     return megaBoard.winner;
