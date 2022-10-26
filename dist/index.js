@@ -105,7 +105,7 @@ function addBorders(boards) {
 }
 const randomBoard = () => {
     let rand = Math.floor(Math.random() * MEGA_SIZE);
-    if (megaBoard.boards[rand].winner !== Player.none) {
+    if (allFullBtn(megaBoard.boards[rand].buttons)) {
         return randomBoard();
     }
     return rand;
@@ -118,8 +118,8 @@ function disableMiniBoardsByButton(id) {
     });
     id = id.split("-")[1];
     let playingBoard = megaBoard.boards[parseInt(id)];
-    if (playingBoard.winner !== Player.none) {
-        randomBoard();
+    if (allFullBtn(playingBoard.buttons)) {
+        playingBoard = megaBoard.boards[randomBoard()];
     }
     playingBoard.buttons.forEach(button => {
         if (button.ocupence === Player.none) {
@@ -174,15 +174,25 @@ function afterTurn(element, id, parentId) {
     element.disabled = true;
     const miniWin = checkBoardWin(megaBoard.boards[parentId].buttons);
     megaBoard.boards[parentId].winner = miniWin === Player.none ? Player.none : miniWin;
-    console.log(megaBoard.boards[parentId]);
     megaBoard.winner = checkBoardWin(megaBoard.boards);
     if (megaBoard.winner !== Player.none) {
         document.getElementById("turn").innerText = "payer won! " + megaBoard.winner;
+        return megaBoard.winner;
     }
     disableMiniBoardsByButton(id);
     currentTurn = currentTurn === Player.X ? Player.O : Player.X;
     document.getElementById("turn").innerText = currentTurn + " turn";
     return megaBoard.winner;
+}
+function simulateGame(speed) {
+    let lastBoard = randomBoard();
+    setInterval(() => {
+        let rand2 = Math.floor(Math.random() * MEGA_SIZE);
+        if (megaBoard.boards[lastBoard].buttons[rand2].ocupence === Player.none) {
+            megaBoard.boards[lastBoard].buttons[rand2].element.click();
+            lastBoard = rand2;
+        }
+    }, speed);
 }
 var currentTurn = Player.X;
 const megaBoard = createBoard();
