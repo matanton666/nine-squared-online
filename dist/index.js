@@ -1,6 +1,7 @@
 "use strict";
 const MEGA_SIZE = 9;
 const MINI_SIZE = 3;
+const SEEN = 0.3;
 var Player;
 (function (Player) {
     Player["X"] = "X";
@@ -11,11 +12,12 @@ var Player;
 class TicImage {
     constructor(id, element, type, opacity) {
         this.opacity = 0;
-        this.position = 1;
+        this.position = -1;
         this.id = id;
         this.element = element;
         this.type = type;
         this.setOpacity(opacity);
+        this.setPosition(-1);
     }
     setOpacity(opacity) {
         this.opacity = opacity;
@@ -63,8 +65,7 @@ class MiniBoard {
         this.element.style.borderSpacing = "0";
         this.element.style.padding = "0";
         this.element.style.borderCollapse = "collapse";
-        this.imageO = this.createImages("/images/o.png", Player.O);
-        this.imageX = this.createImages("/images/x.png", Player.X);
+        this.image = this.createImage("", Player.none);
     }
     createButtons() {
         let count = 0;
@@ -81,11 +82,34 @@ class MiniBoard {
             this.element.appendChild(miniRow);
         }
     }
-    createImages(path, typ) {
+    createImage(path, typ) {
         const img = document.createElement("img");
         img.src = path;
         this.element.appendChild(img);
-        return new TicImage(parseInt(this.id), img, typ, 0.1);
+        return new TicImage(parseInt(this.id), img, typ, 0);
+    }
+    setImage(type) {
+        if (type === Player.X) {
+            this.image.element.src = "/images/x.png";
+        }
+        else if (type === Player.O) {
+            this.image.element.src = "/images/o.png";
+        }
+        else if (type === Player.tie) {
+            this.image.element.src = "/images/tie2.png";
+        }
+        this.image.type = type;
+    }
+    setImageVisable() {
+        if (this.image.type !== Player.none) {
+            this.image.setOpacity(SEEN);
+            this.image.setPosition(1);
+        }
+    }
+    setImageInvisable() {
+        if (this.image.type !== Player.none) {
+            this.image.setPosition(-1);
+        }
     }
 }
 function createBoard() {
@@ -144,6 +168,7 @@ const randomBoard = () => {
 };
 function disableMiniBoardsByButton(id) {
     megaBoard.boards.forEach(board => {
+        board.setImageVisable();
         board.buttons.forEach(button => {
             button.element.disabled = true;
         });
@@ -153,6 +178,7 @@ function disableMiniBoardsByButton(id) {
     if (allFullBtn(playingBoard.buttons)) {
         playingBoard = megaBoard.boards[randomBoard()];
     }
+    playingBoard.setImageInvisable();
     playingBoard.buttons.forEach(button => {
         if (button.ocupence === Player.none) {
             button.element.disabled = false;
@@ -206,9 +232,11 @@ function afterTurn(element, id, parentId) {
     element.disabled = true;
     const miniWin = checkBoardWin(megaBoard.boards[parentId].buttons);
     megaBoard.boards[parentId].winner = miniWin === Player.none ? Player.none : miniWin;
+    megaBoard.boards[parentId].setImage(miniWin);
     megaBoard.winner = checkBoardWin(megaBoard.boards);
     if (megaBoard.winner !== Player.none) {
         document.getElementById("turn").innerText = "payer won! " + megaBoard.winner;
+        disableMiniBoardsByButton(id);
         return megaBoard.winner;
     }
     disableMiniBoardsByButton(id);
@@ -218,12 +246,18 @@ function afterTurn(element, id, parentId) {
 }
 function simulateGame(speed) {
     let lastBoard = randomBoard();
-    setInterval(() => {
-        let rand2 = Math.floor(Math.random() * MEGA_SIZE);
-        if (megaBoard.boards[lastBoard].buttons[rand2].ocupence === Player.none) {
-            megaBoard.boards[lastBoard].buttons[rand2].element.click();
-            lastBoard = rand2;
-        }
+    const inter = setInterval(() => {
+        let btn;
+        let rand2;
+        let count = 0;
+        do {
+            rand2 = Math.floor(Math.random() * MEGA_SIZE);
+            btn = megaBoard.boards[lastBoard].buttons[rand2];
+        } while (btn.ocupence !== Player.none && count < 20);
+        btn.element.click();
+        lastBoard = rand2;
+        if (megaBoard.winner !== Player.none)
+            clearInterval(inter);
     }, speed);
 }
 var currentTurn = Player.X;

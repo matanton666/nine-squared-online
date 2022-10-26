@@ -1,5 +1,6 @@
 const MEGA_SIZE = 9;
 const MINI_SIZE = 3;
+const SEEN = 0.3;
 
 
 // ********* classes and interfaces *********
@@ -28,13 +29,14 @@ class TicImage {
     element: HTMLImageElement;
     type: Player;
     opacity: number = 0;
-    position: number = 1; //! change later to -1
+    position: number = -1;
 
     constructor(id: number, element: HTMLImageElement, type: Player, opacity: number) {
         this.id = id;
         this.element = element;
         this.type = type;
         this.setOpacity(opacity);
+        this.setPosition(-1);
     }
 
     public setOpacity(opacity: number) {
@@ -42,6 +44,7 @@ class TicImage {
         this.element.style.opacity = opacity.toString();
     }
 
+    // 1 for front, -1 for back
     public setPosition(position: number) {
         this.position = position;
         this.element.style.zIndex = position.toString();
@@ -93,8 +96,7 @@ class MiniBoard {
     buttons: Button[];
     element: HTMLTableElement;
     winner: Player;
-    imageX: TicImage;
-    imageO: TicImage;
+    image: TicImage;
 
     constructor(id: string, element: HTMLTableElement) {
         this.id = id;
@@ -109,8 +111,7 @@ class MiniBoard {
         this.element.style.padding = "0";
         this.element.style.borderCollapse = "collapse";
         
-        this.imageO = this.createImages("/images/o.png", Player.O);
-        this.imageX= this.createImages("/images/x.png", Player.X);
+        this.image = this.createImage("", Player.none);
     }
 
     // create buttons and add them to the mini board
@@ -131,17 +132,44 @@ class MiniBoard {
                 count++;
             }
             this.element.appendChild(miniRow);
+
         }
     }
 
-    private createImages(path: string, typ: Player): TicImage {
+    // create the images on top of the mini board for x and o
+    private createImage(path: string, typ: Player): TicImage {
 
         const img = document.createElement("img");
         img.src = path;
         // position the image in the middle of the mini board
         this.element.appendChild(img);
 
-        return new TicImage(parseInt(this.id), img, typ, 0.1);
+        return new TicImage(parseInt(this.id), img, typ, 0);
+    }
+
+    // set image to be visible
+    public setImage(type: Player) {
+        if (type === Player.X) {
+            this.image.element.src = "/images/x.png";
+        } else if (type === Player.O) {
+            this.image.element.src = "/images/o.png";
+        } else if (type === Player.tie) {
+            this.image.element.src = "/images/tie2.png";
+        }
+        this.image.type = type;
+    }
+
+    public setImageVisable() {
+        if (this.image.type !== Player.none) {
+            this.image.setOpacity(SEEN);
+            this.image.setPosition(1);
+        }
+    }
+
+    public setImageInvisable() {
+        if (this.image.type !== Player.none) {
+            this.image.setPosition(-1);
+        }
     }
 }
 
@@ -237,6 +265,7 @@ const randomBoard = (): number => {
 function disableMiniBoardsByButton(id: string){
     // disable all mini boards buttons
     megaBoard.boards.forEach(board => {
+        board.setImageVisable();
         board.buttons.forEach(button => {
             button.element.disabled = true;
         });
@@ -246,8 +275,9 @@ function disableMiniBoardsByButton(id: string){
     let playingBoard = megaBoard.boards[parseInt(id)]
     if (allFullBtn(playingBoard.buttons)){ // board is full
         playingBoard = megaBoard.boards[randomBoard()];
-    } // TODO: test
-    
+    } 
+
+    playingBoard.setImageInvisable();
     playingBoard.buttons.forEach(button => { // enable buttons in playing board
         if (button.ocupence === Player.none) {
             button.element.disabled = false;
@@ -316,17 +346,20 @@ function afterTurn(element: HTMLButtonElement, id: string, parentId: number): Pl
     // check if win in mini board
     const miniWin = checkBoardWin(megaBoard.boards[parentId].buttons);
     megaBoard.boards[parentId].winner = miniWin === Player.none ? Player.none : miniWin;
-
+    megaBoard.boards[parentId].setImage(miniWin);
+    
     // check if win in mega board
     megaBoard.winner = checkBoardWin(megaBoard.boards)
     if (megaBoard.winner !== Player.none){
         document.getElementById("turn")!.innerText = "payer won! " + megaBoard.winner;// TODO: make a proper win screen
+        disableMiniBoardsByButton(id);
+        // TODO: add disable all buttons
         return megaBoard.winner;
     }
 
     // disable none usable mini boards according to the button pressed
     disableMiniBoardsByButton(id);
-
+    
     currentTurn = currentTurn === Player.X ? Player.O : Player.X;
     document.getElementById("turn")!.innerText = currentTurn + " turn";
     return megaBoard.winner;
@@ -337,12 +370,18 @@ function afterTurn(element: HTMLButtonElement, id: string, parentId: number): Pl
 // test the game by setting an interval to emulate a player that plays random moves
 function simulateGame(speed: number){
     let lastBoard = randomBoard();
-    setInterval(() => {
-        let rand2 = Math.floor(Math.random() * MEGA_SIZE);
-        if (megaBoard.boards[lastBoard].buttons[rand2].ocupence === Player.none){
-            megaBoard.boards[lastBoard].buttons[rand2].element.click();
-            lastBoard = rand2;
+    const inter = setInterval(() => {
+        let btn;
+        let rand2;
+        let count = 0;
+        do{
+            rand2 = Math.floor(Math.random() * MEGA_SIZE);
+            btn = megaBoard.boards[lastBoard].buttons[rand2];
         }
+        while (btn.ocupence !== Player.none && count < 20);
+        btn.element.click();
+        lastBoard = rand2;
+        if(megaBoard.winner !== Player.none) clearInterval(inter);
     }, speed);
 }
 
@@ -352,8 +391,9 @@ var currentTurn = Player.X;
 const megaBoard = createBoard();
 addBorders(megaBoard.boards);
 
-// simulateGame(10);
+// simulateGame(300);
 
 
 // TODO: add color red for x and blue for o
 // TODO: add button for new game
+// TODO: make on hover effect for buttons and mini boards
