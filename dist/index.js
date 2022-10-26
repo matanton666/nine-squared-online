@@ -8,6 +8,24 @@ var Player;
     Player["none"] = "-";
     Player["tie"] = "tie";
 })(Player || (Player = {}));
+class TicImage {
+    constructor(id, element, type, opacity) {
+        this.opacity = 0;
+        this.position = 1;
+        this.id = id;
+        this.element = element;
+        this.type = type;
+        this.setOpacity(opacity);
+    }
+    setOpacity(opacity) {
+        this.opacity = opacity;
+        this.element.style.opacity = opacity.toString();
+    }
+    setPosition(position) {
+        this.position = position;
+        this.element.style.zIndex = position.toString();
+    }
+}
 class Button {
     constructor(id, element, parent) {
         this.id = id;
@@ -15,6 +33,7 @@ class Button {
         this.element = element;
         this.parentId = parent;
         this.element.innerText = this.ocupence;
+        this.element.style.fontSize = "0px";
         this.element.id = this.id;
         this.element.className = "button";
         this.setOnclick();
@@ -22,6 +41,7 @@ class Button {
     setOcupence(player) {
         this.ocupence = player;
         this.element.innerText = this.ocupence;
+        this.element.style.fontSize = "25px";
     }
     setOnclick() {
         this.element.onclick = () => {
@@ -42,6 +62,30 @@ class MiniBoard {
         this.element.className = "mini-board";
         this.element.style.borderSpacing = "0";
         this.element.style.padding = "0";
+        this.element.style.borderCollapse = "collapse";
+        this.imageO = this.createImages("/images/o.png", Player.O);
+        this.imageX = this.createImages("/images/x.png", Player.X);
+    }
+    createButtons() {
+        let count = 0;
+        for (let l = 0; l < MINI_SIZE; l++) {
+            const miniRow = document.createElement("tr");
+            for (let m = 0; m < MINI_SIZE; m++) {
+                const td = document.createElement("td");
+                const btn = new Button(`button-${count}`, document.createElement("button"), parseInt(this.id));
+                this.buttons.push(btn);
+                td.appendChild(btn.element);
+                miniRow.appendChild(td);
+                count++;
+            }
+            this.element.appendChild(miniRow);
+        }
+    }
+    createImages(path, typ) {
+        const img = document.createElement("img");
+        img.src = path;
+        this.element.appendChild(img);
+        return new TicImage(parseInt(this.id), img, typ, 0.1);
     }
 }
 function createBoard() {
@@ -55,20 +99,8 @@ function createBoard() {
         const row = document.createElement("tr");
         for (let j = 0; j < MINI_SIZE; j++) {
             const col = document.createElement("td");
-            const miniBoard = new MiniBoard(`mini-board-${j + i * MINI_SIZE}`, document.createElement("table"));
-            count = 0;
-            for (let l = 0; l < MINI_SIZE; l++) {
-                const miniRow = document.createElement("tr");
-                for (let m = 0; m < MINI_SIZE; m++) {
-                    const td = document.createElement("td");
-                    const btn = new Button(`button-${count}`, document.createElement("button"), (j + i * MINI_SIZE));
-                    miniBoard.buttons.push(btn);
-                    td.appendChild(btn.element);
-                    miniRow.appendChild(td);
-                    count++;
-                }
-                miniBoard.element.appendChild(miniRow);
-            }
+            const miniBoard = new MiniBoard(`${j + i * MINI_SIZE}`, document.createElement("table"));
+            miniBoard.createButtons();
             col.appendChild(miniBoard.element);
             row.appendChild(col);
             megaBoard.boards.push(miniBoard);

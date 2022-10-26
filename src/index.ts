@@ -18,11 +18,35 @@ interface IButton {
     element: HTMLButtonElement;
 }
 
-interface IMegaBoard {
+interface IMegaBoard { // TODO: turn to class and implement creating board functions
     boards: MiniBoard[];
     winner: Player;
 }
 
+class TicImage {
+    id: number;
+    element: HTMLImageElement;
+    type: Player;
+    opacity: number = 0;
+    position: number = 1; //! change later to -1
+
+    constructor(id: number, element: HTMLImageElement, type: Player, opacity: number) {
+        this.id = id;
+        this.element = element;
+        this.type = type;
+        this.setOpacity(opacity);
+    }
+
+    public setOpacity(opacity: number) {
+        this.opacity = opacity;
+        this.element.style.opacity = opacity.toString();
+    }
+
+    public setPosition(position: number) {
+        this.position = position;
+        this.element.style.zIndex = position.toString();
+    }
+}
 
 
 class Button implements IButton {
@@ -39,6 +63,7 @@ class Button implements IButton {
         this.parentId = parent;
         // set element settings
         this.element.innerText = this.ocupence;
+        this.element.style.fontSize = "0px";
         this.element.id = this.id;
         this.element.className = "button";
         this.setOnclick();
@@ -47,6 +72,7 @@ class Button implements IButton {
     public setOcupence(player: Player) {
             this.ocupence = player;
             this.element.innerText = this.ocupence;
+            this.element.style.fontSize = "25px";
     }
 
     // set the player to be set in a button when clicked
@@ -67,17 +93,55 @@ class MiniBoard {
     buttons: Button[];
     element: HTMLTableElement;
     winner: Player;
+    imageX: TicImage;
+    imageO: TicImage;
 
     constructor(id: string, element: HTMLTableElement) {
         this.id = id;
         this.buttons = [];
         this.element = element;
         this.winner = Player.none;
+
         // set element settings
         this.element.id = this.id;
         this.element.className = "mini-board";
         this.element.style.borderSpacing = "0";
         this.element.style.padding = "0";
+        this.element.style.borderCollapse = "collapse";
+        
+        this.imageO = this.createImages("/images/o.png", Player.O);
+        this.imageX= this.createImages("/images/x.png", Player.X);
+    }
+
+    // create buttons and add them to the mini board
+    public createButtons() {
+        let count = 0; // 1-9 buttons in mini board
+        for(let l = 0; l < MINI_SIZE; l++){
+            // every mini board row
+            const miniRow = document.createElement("tr");
+
+            for(let m = 0; m < MINI_SIZE; m++){
+                // every button in mini board 
+                const td = document.createElement("td");
+                const btn = new Button(`button-${count}`, document.createElement("button"), parseInt(this.id));
+                this.buttons.push(btn);
+                
+                td.appendChild(btn.element);
+                miniRow.appendChild(td);
+                count++;
+            }
+            this.element.appendChild(miniRow);
+        }
+    }
+
+    private createImages(path: string, typ: Player): TicImage {
+
+        const img = document.createElement("img");
+        img.src = path;
+        // position the image in the middle of the mini board
+        this.element.appendChild(img);
+
+        return new TicImage(parseInt(this.id), img, typ, 0.1);
     }
 }
 
@@ -104,25 +168,9 @@ function createBoard(): IMegaBoard {
             // every mega board data cell
             const col = document.createElement("td");
             // every mini board table element
-            const miniBoard = new MiniBoard(`mini-board-${j + i*MINI_SIZE}`, document.createElement("table"));
-
-            count = 0; // 1-9 buttons in mini board
-            for(let l = 0; l < MINI_SIZE; l++){
-                // every mini board row
-                const miniRow = document.createElement("tr");
-
-                for(let m = 0; m < MINI_SIZE; m++){
-                    // every button in mini board 
-                    const td = document.createElement("td");
-                    const btn = new Button(`button-${count}`, document.createElement("button"), (j + i*MINI_SIZE));
-                    miniBoard.buttons.push(btn);
-                    
-                    td.appendChild(btn.element);
-                    miniRow.appendChild(td);
-                    count++;
-                }
-                miniBoard.element.appendChild(miniRow);
-            }
+            const miniBoard = new MiniBoard(`${j + i*MINI_SIZE}`, document.createElement("table"));
+            miniBoard.createButtons();
+ 
             col.appendChild(miniBoard.element);
             row.appendChild(col);
             megaBoard.boards.push(miniBoard);

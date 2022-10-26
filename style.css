@@ -4,6 +4,13 @@ tr,td{
     padding: 0px;
 }
 
+img {
+    margin: 0 auto;
+    position: absolute;
+    width: 150px;
+    height: 150px;
+}
+
 .boardDiv {
     margin: 0 auto;
     border-spacing:0; 
@@ -11,7 +18,7 @@ tr,td{
 }
 
 .button {
-    border: 1px solid rgb(173, 173, 173);
+    border: 0px solid rgb(173, 173, 173);
     font-size: 20px;
     font-weight: bold;
     height: 50px;
