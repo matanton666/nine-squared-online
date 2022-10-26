@@ -177,7 +177,7 @@ function addBorders(boards: MiniBoard[]): void {
  * @returns id of free mini board
  */
 const randomBoard = (): number => {
-    let rand = Math.floor(Math.random() * MEGA_SIZE+1);
+    let rand = Math.floor(Math.random() * MEGA_SIZE);
     if (megaBoard.boards[rand].winner !== Player.none) {
         return randomBoard();
     }
@@ -212,15 +212,13 @@ function disableMiniBoardsByButton(id: string){
 
 // ***** functions for checking winner in boards *****
 // functions to determine if a player won in a row colomn or diagonal
-const allEqualMini = (arr: MiniBoard[]) => arr.every(
-    v => v.winner === arr[0].winner &&
-    v.winner !== Player.none &&
-    v.winner !== Player.tie); 
-const allEqualbutton = (arr: Button[]) => arr.every(
-    v => v.ocupence === arr[0].ocupence && 
-    v.ocupence !== Player.none) ; 
+const allEqualMini = (arr: MiniBoard[]) => arr.every(v => v.winner === arr[0].winner &&v.winner !== Player.none &&v.winner !== Player.tie); 
+const allEqualbutton = (arr: Button[]) => arr.every(v => typeof v !== "undefined" && v.ocupence === arr[0].ocupence && v.ocupence !== Player.none); 
 
-const checkMiniBoard = (all: MiniBoard[][]): Player => {
+const allFullBtn = (arr: Button[]) => arr.every(v => v.ocupence !== Player.none);
+const allFullMini = (arr: MiniBoard[]) => arr.every(v => v.winner !== Player.none);
+
+const checkMiniBoards = (all: MiniBoard[][]): Player => {
     for (const list of all) {
         if (allEqualMini(list)){
             return list[0].winner;
@@ -237,33 +235,43 @@ const checkButtons = (all: Button[][]): Player => {
     return Player.none;
 }
 
+
+
 function checkBoardWin(board: MiniBoard[] | Button[]): Player {
     let col1 = [], col2 = [], col3 = [], diag1 = [], diag2 = [], row1 = [], row2 = [], row3 = [];
+    let winner = Player.none;
     // get all rows and colomns and diagonals to checks
-    for(let i = 0; i < MEGA_SIZE; i++){
-        row1.push(board[i]);
-        row2.push(board[i+3]);
-        row3.push(board[i+6]);
-        col1.push(board[i*3]);
-        col2.push(board[i*3+1]);
-        col3.push(board[i*3+2]);
-        diag1.push(board[i*4]);
-        diag2.push(board[i*2+2]);
-    }
+    row1.push(board[0], board[3], board[6]);
+    row2.push(board[1], board[4], board[7]);
+    row3.push(board[2], board[5], board[8]);
+    col1.push(board[0], board[1], board[2]);
+    col2.push(board[3], board[4], board[5]);
+    col3.push(board[6], board[7], board[8]);
+    diag1.push(board[0], board[4], board[8]);
+    diag2.push(board[2], board[4], board[6]);
+
 
     let all:any = [col1, col2, col3, diag1, diag2, row1, row2, row3];
     
     if (board[0] instanceof MiniBoard){
-        return checkMiniBoard(all);
+        // first check for a tie and then check if a player won (if player won on last move it will be a win)
+        if (allFullMini(board as MiniBoard[])) winner = Player.tie; 
+        winner = checkMiniBoards(all);
+        return winner
     }
-    return checkButtons(all);
+    // same here
+    if (allFullBtn(board as Button[])) winner = Player.tie; 
+    winner = checkButtons(all);
+    return winner
 }
 
 
 function afterTurn(element: HTMLButtonElement, id: string, parentId: number): Player{
     element.disabled = true;
     // check if win in mini board
-    megaBoard.boards[parentId].winner = checkBoardWin(megaBoard.boards[parentId].buttons);
+    const miniWin = checkBoardWin(megaBoard.boards[parentId].buttons);
+    megaBoard.boards[parentId].winner = miniWin === Player.none ? Player.none : miniWin;
+    console.log(megaBoard.boards[parentId]);
     // check if win in mega board
     megaBoard.winner = checkBoardWin(megaBoard.boards)
     if (megaBoard.winner !== Player.none){
