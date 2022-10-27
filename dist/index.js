@@ -160,19 +160,22 @@ function addBorders(boards) {
     }
 }
 const randomBoard = () => {
-    let rand = Math.floor(Math.random() * MEGA_SIZE);
-    if (allFullBtn(megaBoard.boards[rand].buttons)) {
-        return randomBoard();
-    }
+    let rand = 0;
+    do {
+        rand = Math.floor(Math.random() * MEGA_SIZE);
+    } while (allFullBtn(megaBoard.boards[rand].buttons));
     return rand;
 };
-function disableMiniBoardsByButton(id) {
+const disableAllButtons = () => {
     megaBoard.boards.forEach(board => {
         board.setImageVisable();
         board.buttons.forEach(button => {
             button.element.disabled = true;
         });
     });
+};
+function disableMiniBoardsByButton(id) {
+    disableAllButtons();
     id = id.split("-")[1];
     let playingBoard = megaBoard.boards[parseInt(id)];
     if (allFullBtn(playingBoard.buttons)) {
@@ -218,25 +221,31 @@ function checkBoardWin(board) {
     diag2.push(board[2], board[4], board[6]);
     let all = [col1, col2, col3, diag1, diag2, row1, row2, row3];
     if (board[0] instanceof MiniBoard) {
-        if (allFullMini(board))
-            winner = Player.tie;
         winner = checkMiniBoards(all);
+        winner = winner === Player.none ? allEqualMini(board) ? Player.tie : winner : winner;
         return winner;
     }
-    if (allFullBtn(board))
-        winner = Player.tie;
     winner = checkButtons(all);
+    winner = winner === Player.none ? allFullBtn(board) ? Player.tie : winner : winner;
     return winner;
 }
+const HilightAllMiniWin = () => {
+    megaBoard.boards.forEach(board => {
+        board.image.setOpacity(0.85);
+    });
+};
 function afterTurn(element, id, parentId) {
     element.disabled = true;
     const miniWin = checkBoardWin(megaBoard.boards[parentId].buttons);
     megaBoard.boards[parentId].winner = miniWin === Player.none ? Player.none : miniWin;
     megaBoard.boards[parentId].setImage(miniWin);
     megaBoard.winner = checkBoardWin(megaBoard.boards);
-    if (megaBoard.winner !== Player.none) {
-        document.getElementById("turn").innerText = "payer won! " + megaBoard.winner;
-        disableMiniBoardsByButton(id);
+    if (megaBoard.winner !== Player.none || allFullMini(megaBoard.boards)) {
+        megaBoard.winner = megaBoard.winner === Player.none ? Player.tie : megaBoard.winner;
+        document.getElementById("turn").innerText = megaBoard.winner !== Player.tie ?
+            "payer " + megaBoard.winner + " won!" : "its a Tie!";
+        disableAllButtons();
+        HilightAllMiniWin();
         return megaBoard.winner;
     }
     disableMiniBoardsByButton(id);
@@ -246,21 +255,27 @@ function afterTurn(element, id, parentId) {
 }
 function simulateGame(speed) {
     let lastBoard = randomBoard();
+    let count = 0;
     const inter = setInterval(() => {
         let btn;
         let rand2;
-        let count = 0;
         do {
             rand2 = Math.floor(Math.random() * MEGA_SIZE);
             btn = megaBoard.boards[lastBoard].buttons[rand2];
-        } while (btn.ocupence !== Player.none && count < 20);
+        } while (btn.ocupence !== Player.none && btn.element.disabled === true);
         btn.element.click();
+        while (allFullBtn(megaBoard.boards[rand2].buttons)) {
+            rand2 = randomBoard();
+        }
         lastBoard = rand2;
-        if (megaBoard.winner !== Player.none)
+        if (megaBoard.winner !== Player.none) {
             clearInterval(inter);
+        }
+        count++;
     }, speed);
 }
 var currentTurn = Player.X;
 const megaBoard = createBoard();
 addBorders(megaBoard.boards);
+simulateGame(10);
 //# sourceMappingURL=index.js.map

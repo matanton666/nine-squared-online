@@ -246,23 +246,21 @@ function addBorders(boards: MiniBoard[]): void {
 
 // ***************************** fuctions for game logic *****************************
 
+
 /**
  * gives a random number between 0 and 9 for a random mini board to be selected
  * @returns id of free mini board
  */
 const randomBoard = (): number => {
-    let rand = Math.floor(Math.random() * MEGA_SIZE);
-    if (allFullBtn(megaBoard.boards[rand].buttons)) {
-        return randomBoard();
+    let rand = 0;
+    do{
+    rand = Math.floor(Math.random() * MEGA_SIZE);
     }
+    while (allFullBtn(megaBoard.boards[rand].buttons));
     return rand;
 }
 
-/**
- * disables all buttons in the board except the one that can be played
- * @param id id of button that was clicked
- */
-function disableMiniBoardsByButton(id: string){
+const disableAllButtons = () => {
     // disable all mini boards buttons
     megaBoard.boards.forEach(board => {
         board.setImageVisable();
@@ -270,6 +268,15 @@ function disableMiniBoardsByButton(id: string){
             button.element.disabled = true;
         });
     });
+}
+
+/**
+ * disables all buttons in the board except the one that can be played
+ * @param id id of button that was clicked
+ */
+function disableMiniBoardsByButton(id: string){
+
+    disableAllButtons();
 
     id = id.split("-")[1]; // get rid of 'button-' part
     let playingBoard = megaBoard.boards[parseInt(id)]
@@ -286,13 +293,18 @@ function disableMiniBoardsByButton(id: string){
 
 }
 
-// ***** functions for checking winner in boards *****
+// ********* functions for checking winner in boards *********
+
+
 // functions to determine if a player won in a row colomn or diagonal
 const allEqualMini = (arr: MiniBoard[]) => arr.every(v => v.winner === arr[0].winner &&v.winner !== Player.none &&v.winner !== Player.tie); 
 const allEqualbutton = (arr: Button[]) => arr.every(v => typeof v !== "undefined" && v.ocupence === arr[0].ocupence && v.ocupence !== Player.none); 
 
+// return true if there are no none elements
 const allFullBtn = (arr: Button[]) => arr.every(v => v.ocupence !== Player.none);
 const allFullMini = (arr: MiniBoard[]) => arr.every(v => v.winner !== Player.none);
+
+
 
 const checkMiniBoards = (all: MiniBoard[][]): Player => {
     for (const list of all) {
@@ -330,16 +342,22 @@ function checkBoardWin(board: MiniBoard[] | Button[]): Player {
     
     if (board[0] instanceof MiniBoard){
         // first check for a tie and then check if a player won (if player won on last move it will be a win)
-        if (allFullMini(board as MiniBoard[])) winner = Player.tie; 
         winner = checkMiniBoards(all);
+        winner = winner === Player.none ? allEqualMini(board as MiniBoard[]) ? Player.tie : winner : winner;
         return winner
     }
     // same here
-    if (allFullBtn(board as Button[])) winner = Player.tie; 
     winner = checkButtons(all);
+    winner = winner === Player.none ? allFullBtn(board as Button[]) ? Player.tie : winner : winner;
     return winner
 }
 
+
+const HilightAllMiniWin = () =>{
+    megaBoard.boards.forEach(board => {
+        board.image.setOpacity(0.85);
+    });
+}
 
 function afterTurn(element: HTMLButtonElement, id: string, parentId: number): Player{
     element.disabled = true;
@@ -350,10 +368,13 @@ function afterTurn(element: HTMLButtonElement, id: string, parentId: number): Pl
     
     // check if win in mega board
     megaBoard.winner = checkBoardWin(megaBoard.boards)
-    if (megaBoard.winner !== Player.none){
-        document.getElementById("turn")!.innerText = "payer won! " + megaBoard.winner;// TODO: make a proper win screen
-        disableMiniBoardsByButton(id);
-        // TODO: add disable all buttons
+    if (megaBoard.winner !== Player.none || allFullMini(megaBoard.boards)){
+        megaBoard.winner = megaBoard.winner === Player.none ? Player.tie : megaBoard.winner;
+        document.getElementById("turn")!.innerText =  megaBoard.winner !== Player.tie ?
+        "payer " + megaBoard.winner + " won!" : "its a Tie!";// TODO: make a proper win screen
+        
+        disableAllButtons();
+        HilightAllMiniWin();
         return megaBoard.winner;
     }
 
@@ -370,18 +391,25 @@ function afterTurn(element: HTMLButtonElement, id: string, parentId: number): Pl
 // test the game by setting an interval to emulate a player that plays random moves
 function simulateGame(speed: number){
     let lastBoard = randomBoard();
+    let count = 0;
     const inter = setInterval(() => {
         let btn;
         let rand2;
-        let count = 0;
         do{
             rand2 = Math.floor(Math.random() * MEGA_SIZE);
             btn = megaBoard.boards[lastBoard].buttons[rand2];
         }
-        while (btn.ocupence !== Player.none && count < 20);
+        while (btn.ocupence !== Player.none && btn.element.disabled === true);
+
         btn.element.click();
+        while (allFullBtn(megaBoard.boards[rand2].buttons)){
+            rand2 = randomBoard();
+        }
         lastBoard = rand2;
-        if(megaBoard.winner !== Player.none) clearInterval(inter);
+        if(megaBoard.winner !== Player.none) {
+            clearInterval(inter);
+        }
+        count++;
     }, speed);
 }
 
@@ -391,8 +419,10 @@ var currentTurn = Player.X;
 const megaBoard = createBoard();
 addBorders(megaBoard.boards);
 
-// simulateGame(300);
+simulateGame(10);
 
+// ! check fix below bugs
+// TODO: fix bug when game at last block page freazes
 
 // TODO: add color red for x and blue for o
 // TODO: add button for new game
