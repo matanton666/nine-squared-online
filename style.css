@@ -15,6 +15,7 @@ img {
     margin: 0 auto;
     border-spacing:0; 
     border-collapse:collapse;
+    box-shadow: 5px 5px 5px 5px #888888;
 }
 
 .button {
@@ -27,7 +28,7 @@ img {
 /* on hover */
 .button:hover {
     background-color: #000000 ;
-    color: #FFFFFF;
+    color: #ffffff;
 }
 
 .button:disabled {

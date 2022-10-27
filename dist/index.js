@@ -39,6 +39,7 @@ class Button {
         this.element.id = this.id;
         this.element.className = "button";
         this.setOnclick();
+        this.setOnhover();
     }
     setOcupence(player) {
         this.ocupence = player;
@@ -50,6 +51,24 @@ class Button {
             if (this.ocupence === Player.none) {
                 this.setOcupence(currentTurn);
                 afterTurn(this.element, this.id, this.parentId);
+            }
+        };
+    }
+    setOnhover() {
+        this.element.onmouseover = () => {
+            if (this.ocupence === Player.none) {
+                const id = this.id.split("-")[1];
+                let stl = megaBoard.boards[parseInt(id)].element.style;
+                stl.boxShadow = "0px 0px 5px 5px #494949";
+                stl.scale = "0.98";
+            }
+        };
+        this.element.onmouseout = () => {
+            if (this.ocupence === Player.none) {
+                const id = this.id.split("-")[1];
+                let stl = megaBoard.boards[parseInt(id)].element.style;
+                stl.boxShadow = "0px 0px 0px 0px #494949";
+                stl.scale = "1";
             }
         };
     }
@@ -169,6 +188,8 @@ const randomBoard = () => {
 const disableAllButtons = () => {
     megaBoard.boards.forEach(board => {
         board.setImageVisable();
+        board.element.style.boxShadow = "0px 0px 0px 0px #494949";
+        board.element.style.scale = "1";
         board.buttons.forEach(button => {
             button.element.disabled = true;
         });
@@ -277,5 +298,4 @@ function simulateGame(speed) {
 var currentTurn = Player.X;
 const megaBoard = createBoard();
 addBorders(megaBoard.boards);
-simulateGame(10);
 //# sourceMappingURL=index.js.map

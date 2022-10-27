@@ -70,6 +70,7 @@ class Button implements IButton {
         this.element.id = this.id;
         this.element.className = "button";
         this.setOnclick();
+        this.setOnhover();
     }
 
     public setOcupence(player: Player) {
@@ -85,6 +86,26 @@ class Button implements IButton {
                 this.setOcupence(currentTurn);
                 // after turn checks
                 afterTurn(this.element, this.id, this.parentId);
+            }
+        }
+    }
+
+    private setOnhover() {
+        this.element.onmouseover = () =>{
+            if (this.ocupence === Player.none) {
+                const id = this.id.split("-")[1];
+                let stl = megaBoard.boards[parseInt(id)].element.style;
+                stl.boxShadow = "0px 0px 5px 5px #494949";
+                stl.scale = "0.98";
+                
+            }
+        }
+        this.element.onmouseout = () =>{
+            if (this.ocupence === Player.none) {
+                const id = this.id.split("-")[1];
+                let stl = megaBoard.boards[parseInt(id)].element.style;
+                stl.boxShadow = "0px 0px 0px 0px #494949";
+                stl.scale = "1";
             }
         }
     }
@@ -264,6 +285,8 @@ const disableAllButtons = () => {
     // disable all mini boards buttons
     megaBoard.boards.forEach(board => {
         board.setImageVisable();
+        board.element.style.boxShadow = "0px 0px 0px 0px #494949";
+        board.element.style.scale = "1";
         board.buttons.forEach(button => {
             button.element.disabled = true;
         });
@@ -419,10 +442,9 @@ var currentTurn = Player.X;
 const megaBoard = createBoard();
 addBorders(megaBoard.boards);
 
-simulateGame(10);
+// simulateGame(100);
 
 // ! check fix below bugs
-// TODO: fix bug when game at last block page freazes
 
 // TODO: add color red for x and blue for o
 // TODO: add button for new game
