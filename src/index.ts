@@ -1,5 +1,6 @@
 import * as classes from "./classes.js";
 
+// TODO: clean code and comment 
 // ***************************** fuctions for game logic *****************************
 const MEGA_SIZE = 9;
 
@@ -184,6 +185,5 @@ var globals: classes.Globals = {
 const megaBoard = new classes.MegaBoard(globals);
 setClickListeners();
 
-// TODO: add color red for x and blue for o
-// TODO: add button for new game
 // TODO: add button on sorintg algorithm site to this one
+// TODO: add rules button / page
