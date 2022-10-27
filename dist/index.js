@@ -9,6 +9,94 @@ var Player;
     Player["none"] = "-";
     Player["tie"] = "tie";
 })(Player || (Player = {}));
+class MegaBoard {
+    constructor() {
+        this.boards = [];
+        this.winner = Player.none;
+        this.reset();
+    }
+    reset() {
+        if (this.boards.length !== 0)
+            this.eraseBoards();
+        if (inter)
+            clearInterval(inter);
+        this.createBoard();
+        this.addBorders(this.boards);
+        this.winner = Player.none;
+        currentTurn = Player.X;
+        document.getElementById("turn").innerText = "X turn";
+    }
+    eraseBoards() {
+        this.boards.forEach(board => {
+            board.buttons.forEach(button => {
+                button.element.remove();
+            });
+            board.element.remove();
+        });
+        this.boards = [];
+    }
+    showWinner() {
+        const text = document.getElementById("turn");
+        text.innerText = this.winner !== Player.tie ?
+            "player " + megaBoard.winner + " won!" : "its a Tie!";
+        switch (this.winner) {
+            case Player.O:
+                text.style.color = "blue";
+                break;
+            case Player.X:
+                text.style.color = "red";
+                break;
+            case Player.tie:
+                text.style.color = "magenta";
+                break;
+            default:
+                break;
+        }
+        text.style.fontSize = "xx-large";
+    }
+    createBoard() {
+        let count = 0;
+        const boardTable = document.getElementById("board");
+        for (let i = 0; i < MINI_SIZE; i++) {
+            const row = document.createElement("tr");
+            for (let j = 0; j < MINI_SIZE; j++) {
+                const col = document.createElement("td");
+                const miniBoard = new MiniBoard(`${j + i * MINI_SIZE}`, document.createElement("table"));
+                miniBoard.createButtons();
+                col.appendChild(miniBoard.element);
+                row.appendChild(col);
+                this.boards.push(miniBoard);
+            }
+            boardTable.appendChild(row);
+        }
+    }
+    addBorders(boards) {
+        const rightBorder = [0, 1, 3, 4, 6, 7];
+        const bottomBorder = [0, 1, 2, 3, 4, 5];
+        const leftBorder = [1, 2, 4, 5, 7, 8];
+        const topBorder = [3, 4, 5, 6, 7, 8];
+        const settings = "4px solid black";
+        const miniSettings = "1px solid black";
+        for (let i = 0; i < boards.length; i++) {
+            for (const boardNum of rightBorder) {
+                boards[boardNum].element.style.borderRight = settings;
+                boards[i].buttons[boardNum].element.style.borderRight = miniSettings;
+            }
+            for (const boardNum of leftBorder) {
+                boards[boardNum].element.style.borderLeft = settings;
+                boards[i].buttons[boardNum].element.style.borderLeft = miniSettings;
+            }
+            for (const boardNum of topBorder) {
+                boards[boardNum].element.style.borderTop = settings;
+                boards[i].buttons[boardNum].element.style.borderTop = miniSettings;
+            }
+            for (const boardNum of bottomBorder) {
+                boards[boardNum].element.style.borderBottom = settings;
+                boards[i].buttons[boardNum].element.style.borderBottom = miniSettings;
+            }
+        }
+    }
+}
 class TicImage {
     constructor(id, element, type, opacity) {
         this.opacity = 0;
@@ -26,51 +114,6 @@ class TicImage {
     setPosition(position) {
         this.position = position;
         this.element.style.zIndex = position.toString();
-    }
-}
-class Button {
-    constructor(id, element, parent) {
-        this.id = id;
-        this.ocupence = Player.none;
-        this.element = element;
-        this.parentId = parent;
-        this.element.innerText = this.ocupence;
-        this.element.style.fontSize = "0px";
-        this.element.id = this.id;
-        this.element.className = "button";
-        this.setOnclick();
-        this.setOnhover();
-    }
-    setOcupence(player) {
-        this.ocupence = player;
-        this.element.innerText = this.ocupence;
-        this.element.style.fontSize = "25px";
-    }
-    setOnclick() {
-        this.element.onclick = () => {
-            if (this.ocupence === Player.none) {
-                this.setOcupence(currentTurn);
-                afterTurn(this.element, this.id, this.parentId);
-            }
-        };
-    }
-    setOnhover() {
-        this.element.onmouseover = () => {
-            if (this.ocupence === Player.none) {
-                const id = this.id.split("-")[1];
-                let stl = megaBoard.boards[parseInt(id)].element.style;
-                stl.boxShadow = "0px 0px 5px 5px #494949";
-                stl.scale = "0.98";
-            }
-        };
-        this.element.onmouseout = () => {
-            if (this.ocupence === Player.none) {
-                const id = this.id.split("-")[1];
-                let stl = megaBoard.boards[parseInt(id)].element.style;
-                stl.boxShadow = "0px 0px 0px 0px #494949";
-                stl.scale = "1";
-            }
-        };
     }
 }
 class MiniBoard {
@@ -131,51 +174,49 @@ class MiniBoard {
         }
     }
 }
-function createBoard() {
-    let count = 0;
-    const boardTable = document.getElementById("board");
-    const megaBoard = {
-        boards: [],
-        winner: Player.none
-    };
-    for (let i = 0; i < MINI_SIZE; i++) {
-        const row = document.createElement("tr");
-        for (let j = 0; j < MINI_SIZE; j++) {
-            const col = document.createElement("td");
-            const miniBoard = new MiniBoard(`${j + i * MINI_SIZE}`, document.createElement("table"));
-            miniBoard.createButtons();
-            col.appendChild(miniBoard.element);
-            row.appendChild(col);
-            megaBoard.boards.push(miniBoard);
-        }
-        boardTable.appendChild(row);
+class Button {
+    constructor(id, element, parent) {
+        this.id = id;
+        this.ocupence = Player.none;
+        this.element = element;
+        this.parentId = parent;
+        this.element.innerText = this.ocupence;
+        this.element.style.fontSize = "0px";
+        this.element.id = this.id;
+        this.element.className = "button";
+        this.setOnclick();
+        this.setOnhover();
     }
-    return megaBoard;
-}
-function addBorders(boards) {
-    const rightBorder = [0, 1, 3, 4, 6, 7];
-    const bottomBorder = [0, 1, 2, 3, 4, 5];
-    const leftBorder = [1, 2, 4, 5, 7, 8];
-    const topBorder = [3, 4, 5, 6, 7, 8];
-    const settings = "4px solid black";
-    const miniSettings = "1px solid black";
-    for (let i = 0; i < boards.length; i++) {
-        for (const boardNum of rightBorder) {
-            boards[boardNum].element.style.borderRight = settings;
-            boards[i].buttons[boardNum].element.style.borderRight = miniSettings;
-        }
-        for (const boardNum of leftBorder) {
-            boards[boardNum].element.style.borderLeft = settings;
-            boards[i].buttons[boardNum].element.style.borderLeft = miniSettings;
-        }
-        for (const boardNum of topBorder) {
-            boards[boardNum].element.style.borderTop = settings;
-            boards[i].buttons[boardNum].element.style.borderTop = miniSettings;
-        }
-        for (const boardNum of bottomBorder) {
-            boards[boardNum].element.style.borderBottom = settings;
-            boards[i].buttons[boardNum].element.style.borderBottom = miniSettings;
-        }
+    setOcupence(player) {
+        this.ocupence = player;
+        this.element.innerText = this.ocupence;
+        this.element.style.fontSize = "25px";
+    }
+    setOnclick() {
+        this.element.onclick = () => {
+            if (this.ocupence === Player.none) {
+                this.setOcupence(currentTurn);
+                afterTurn(this.element, this.id, this.parentId);
+            }
+        };
+    }
+    setOnhover() {
+        this.element.onmouseover = () => {
+            if (this.ocupence === Player.none) {
+                const id = this.id.split("-")[1];
+                let stl = megaBoard.boards[parseInt(id)].element.style;
+                stl.boxShadow = "0px 0px 5px 5px #494949";
+                stl.scale = "0.98";
+            }
+        };
+        this.element.onmouseout = () => {
+            if (this.ocupence === Player.none) {
+                const id = this.id.split("-")[1];
+                let stl = megaBoard.boards[parseInt(id)].element.style;
+                stl.boxShadow = "0px 0px 0px 0px #494949";
+                stl.scale = "1";
+            }
+        };
     }
 }
 const randomBoard = () => {
@@ -263,8 +304,7 @@ function afterTurn(element, id, parentId) {
     megaBoard.winner = checkBoardWin(megaBoard.boards);
     if (megaBoard.winner !== Player.none || allFullMini(megaBoard.boards)) {
         megaBoard.winner = megaBoard.winner === Player.none ? Player.tie : megaBoard.winner;
-        document.getElementById("turn").innerText = megaBoard.winner !== Player.tie ?
-            "payer " + megaBoard.winner + " won!" : "its a Tie!";
+        megaBoard.showWinner();
         disableAllButtons();
         HilightAllMiniWin();
         return megaBoard.winner;
@@ -277,7 +317,7 @@ function afterTurn(element, id, parentId) {
 function simulateGame(speed) {
     let lastBoard = randomBoard();
     let count = 0;
-    const inter = setInterval(() => {
+    inter = setInterval(() => {
         let btn;
         let rand2;
         do {
@@ -295,7 +335,7 @@ function simulateGame(speed) {
         count++;
     }, speed);
 }
+var inter;
 var currentTurn = Player.X;
-const megaBoard = createBoard();
-addBorders(megaBoard.boards);
+const megaBoard = new MegaBoard();
 //# sourceMappingURL=index.js.map

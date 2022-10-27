@@ -2,7 +2,7 @@ const MEGA_SIZE = 9;
 const MINI_SIZE = 3;
 const SEEN = 0.3;
 
-
+// TODO: comment and clean
 // ********* classes and interfaces *********
 
 enum Player {
@@ -19,10 +19,120 @@ interface IButton {
     element: HTMLButtonElement;
 }
 
-interface IMegaBoard { // TODO: turn to class and implement creating board functions
+class MegaBoard {
     boards: MiniBoard[];
     winner: Player;
+
+    constructor() {
+        this.boards = [];
+        this.winner = Player.none;
+        this.reset();
+    }
+
+    public reset(): void {
+        if (this.boards.length !== 0) 
+            this.eraseBoards(); // remove boards if they exist
+        if (inter) clearInterval(inter); // remove interval if it exists
+        this.createBoard();
+        this.addBorders(this.boards);
+        this.winner = Player.none;
+        currentTurn = Player.X;
+        document.getElementById("turn")!.innerText = "X turn";
+    }
+
+    private eraseBoards(): void {
+        this.boards.forEach(board => {
+            board.buttons.forEach(button => {
+                button.element.remove();
+            });
+            board.element.remove();
+        });
+        this.boards = [];
+    }
+
+    public showWinner(): void {
+        const text = document.getElementById("turn")!;
+        text.innerText =  this.winner !== Player.tie ?
+        "player " + megaBoard.winner + " won!" : "its a Tie!";
+        // change color of text based on the winner
+        switch (this.winner) {
+            case Player.O:
+                text.style.color = "blue";
+                break;
+            case Player.X:
+                text.style.color = "red";
+                break;
+            case Player.tie:
+                text.style.color = "magenta";
+                break;
+            default:
+                break;
+        }
+        text.style.fontSize = "xx-large";
+    }
+
+    /**
+     * creates the game board of one big table with 9 mini tables in it
+     * each mini table has 9 buttons in it
+     * @returns mega board containing mini boards containing buttons
+     */
+    private createBoard() {
+        let count = 0;
+        const boardTable = document.getElementById("board")!;// '!' to make sure not null
+        // loop to create table with buttons
+        for(let i = 0; i < MINI_SIZE; i++){
+            // every mega board row
+            const row = document.createElement("tr");
+
+            for(let j = 0; j < MINI_SIZE; j++){
+                // every mega board data cell
+                const col = document.createElement("td");
+                // every mini board table element
+                const miniBoard = new MiniBoard(`${j + i*MINI_SIZE}`, document.createElement("table"));
+                miniBoard.createButtons();
+    
+                col.appendChild(miniBoard.element);
+                row.appendChild(col);
+                this.boards.push(miniBoard);
+            }
+            boardTable.appendChild(row);
+        }
+    }
+
+    /**
+     * adds black borders to the board to make it look like a tic tac toe board
+     * @param boards array of mini boards
+     */
+    private addBorders(boards: MiniBoard[]): void {
+        const rightBorder = [0, 1, 3, 4, 6, 7];
+        const bottomBorder = [0, 1, 2, 3, 4, 5];
+        const leftBorder = [1, 2, 4, 5, 7, 8];
+        const topBorder = [3, 4, 5, 6, 7, 8];
+        const settings = "4px solid black";
+        const miniSettings = "1px solid black";
+
+        // loop all lists and set borders for every mini board
+        for(let i = 0; i < boards.length; i++){
+            for (const boardNum of rightBorder) {// loop every place that needs a right border
+                boards[boardNum].element.style.borderRight = settings;
+                boards[i].buttons[boardNum].element.style.borderRight = miniSettings;
+            }
+            for (const boardNum of leftBorder) { // etec
+                boards[boardNum].element.style.borderLeft = settings;
+                boards[i].buttons[boardNum].element.style.borderLeft = miniSettings;
+            }
+            for (const boardNum of topBorder) {
+                boards[boardNum].element.style.borderTop = settings;
+                boards[i].buttons[boardNum].element.style.borderTop = miniSettings;
+            }
+            for (const boardNum of bottomBorder) {
+                boards[boardNum].element.style.borderBottom = settings;
+                boards[i].buttons[boardNum].element.style.borderBottom = miniSettings;
+            }
+        }
+    }
 }
+
 
 class TicImage {
     id: number;
@@ -51,65 +161,6 @@ class TicImage {
     }
 }
 
-
-class Button implements IButton {
-    id: string;
-    parentId: number;
-    ocupence: Player;
-    element: HTMLButtonElement;
-
-    // create button element and set its parameters
-    constructor(id: string, element: HTMLButtonElement, parent: number) {
-        this.id = id;
-        this.ocupence = Player.none;
-        this.element = element;
-        this.parentId = parent;
-        // set element settings
-        this.element.innerText = this.ocupence;
-        this.element.style.fontSize = "0px";
-        this.element.id = this.id;
-        this.element.className = "button";
-        this.setOnclick();
-        this.setOnhover();
-    }
-
-    public setOcupence(player: Player) {
-            this.ocupence = player;
-            this.element.innerText = this.ocupence;
-            this.element.style.fontSize = "25px";
-    }
-
-    // set the player to be set in a button when clicked
-    private setOnclick() {
-        this.element.onclick = () => {
-            if (this.ocupence === Player.none) {
-                this.setOcupence(currentTurn);
-                // after turn checks
-                afterTurn(this.element, this.id, this.parentId);
-            }
-        }
-    }
-
-    private setOnhover() {
-        this.element.onmouseover = () =>{
-            if (this.ocupence === Player.none) {
-                const id = this.id.split("-")[1];
-                let stl = megaBoard.boards[parseInt(id)].element.style;
-                stl.boxShadow = "0px 0px 5px 5px #494949";
-                stl.scale = "0.98";
-                
-            }
-        }
-        this.element.onmouseout = () =>{
-            if (this.ocupence === Player.none) {
-                const id = this.id.split("-")[1];
-                let stl = megaBoard.boards[parseInt(id)].element.style;
-                stl.boxShadow = "0px 0px 0px 0px #494949";
-                stl.scale = "1";
-            }
-        }
-    }
-}
 
 // mini board containing buttons of places 
 class MiniBoard {
@@ -195,73 +246,66 @@ class MiniBoard {
 }
 
 
-// ********** fucntions for board creation ***********
-/**
- * creates the game board of one big table with 9 mini tables in it
- * each mini table has 9 buttons in it
- * @returns mega board containing mini boards containing buttons
- */
-function createBoard(): IMegaBoard {
-    let count = 0;
-    const boardTable = document.getElementById("board")!;// '!' to make sure not null
-    const megaBoard: IMegaBoard = {
-        boards: [],
-        winner: Player.none
-    };
-    // loop to create table with buttons
-    for(let i = 0; i < MINI_SIZE; i++){
-        // every mega board row
-        const row = document.createElement("tr");
+class Button implements IButton {
+    id: string;
+    parentId: number;
+    ocupence: Player;
+    element: HTMLButtonElement;
 
-        for(let j = 0; j < MINI_SIZE; j++){
-            // every mega board data cell
-            const col = document.createElement("td");
-            // every mini board table element
-            const miniBoard = new MiniBoard(`${j + i*MINI_SIZE}`, document.createElement("table"));
-            miniBoard.createButtons();
- 
-            col.appendChild(miniBoard.element);
-            row.appendChild(col);
-            megaBoard.boards.push(miniBoard);
-        }
-        boardTable.appendChild(row);
+    // create button element and set its parameters
+    constructor(id: string, element: HTMLButtonElement, parent: number) {
+        this.id = id;
+        this.ocupence = Player.none;
+        this.element = element;
+        this.parentId = parent;
+        // set element settings
+        this.element.innerText = this.ocupence;
+        this.element.style.fontSize = "0px";
+        this.element.id = this.id;
+        this.element.className = "button";
+        this.setOnclick();
+        this.setOnhover();
     }
-    return megaBoard;
-}
 
-/**
- * adds black borders to the board to make it look like a tic tac toe board
- * @param boards array of mini boards
- */
-function addBorders(boards: MiniBoard[]): void {
-    const rightBorder = [0, 1, 3, 4, 6, 7];
-    const bottomBorder = [0, 1, 2, 3, 4, 5];
-    const leftBorder = [1, 2, 4, 5, 7, 8];
-    const topBorder = [3, 4, 5, 6, 7, 8];
-    const settings = "4px solid black";
-    const miniSettings = "1px solid black";
+    public setOcupence(player: Player) {
+            this.ocupence = player;
+            this.element.innerText = this.ocupence;
+            this.element.style.fontSize = "25px";
+    }
 
-    // loop all lists and set borders for every mini board
-    for(let i = 0; i < boards.length; i++){
-        for (const boardNum of rightBorder) {// loop every place that needs a right border
-            boards[boardNum].element.style.borderRight = settings;
-            boards[i].buttons[boardNum].element.style.borderRight = miniSettings;
+    // set the player to be set in a button when clicked
+    private setOnclick() {
+        this.element.onclick = () => {
+            if (this.ocupence === Player.none) {
+                this.setOcupence(currentTurn);
+                // after turn checks
+                afterTurn(this.element, this.id, this.parentId);
+            }
         }
-        for (const boardNum of leftBorder) { // etec
-            boards[boardNum].element.style.borderLeft = settings;
-            boards[i].buttons[boardNum].element.style.borderLeft = miniSettings;
+    }
+
+    private setOnhover() {
+        this.element.onmouseover = () =>{
+            if (this.ocupence === Player.none) {
+                // highlight the mini board that coresponds to the button hovered
+                const id = this.id.split("-")[1];
+                let stl = megaBoard.boards[parseInt(id)].element.style;
+                stl.boxShadow = "0px 0px 5px 5px #494949";
+                stl.scale = "0.98";
+                
+            }
         }
-        for (const boardNum of topBorder) {
-            boards[boardNum].element.style.borderTop = settings;
-            boards[i].buttons[boardNum].element.style.borderTop = miniSettings;
-        }
-        for (const boardNum of bottomBorder) {
-            boards[boardNum].element.style.borderBottom = settings;
-            boards[i].buttons[boardNum].element.style.borderBottom = miniSettings;
+        this.element.onmouseout = () =>{
+            // revert to normal
+            if (this.ocupence === Player.none) {
+                const id = this.id.split("-")[1];
+                let stl = megaBoard.boards[parseInt(id)].element.style;
+                stl.boxShadow = "0px 0px 0px 0px #494949";
+                stl.scale = "1";
+            }
         }
     }
 }
-
 
 
 
@@ -280,7 +324,7 @@ const randomBoard = (): number => {
     while (allFullBtn(megaBoard.boards[rand].buttons));
     return rand;
 }
-
+//TODO: move this to mega board class
 const disableAllButtons = () => {
     // disable all mini boards buttons
     megaBoard.boards.forEach(board => {
@@ -326,7 +370,6 @@ const allEqualbutton = (arr: Button[]) => arr.every(v => typeof v !== "undefined
 // return true if there are no none elements
 const allFullBtn = (arr: Button[]) => arr.every(v => v.ocupence !== Player.none);
 const allFullMini = (arr: MiniBoard[]) => arr.every(v => v.winner !== Player.none);
-
 
 
 const checkMiniBoards = (all: MiniBoard[][]): Player => {
@@ -392,10 +435,9 @@ function afterTurn(element: HTMLButtonElement, id: string, parentId: number): Pl
     // check if win in mega board
     megaBoard.winner = checkBoardWin(megaBoard.boards)
     if (megaBoard.winner !== Player.none || allFullMini(megaBoard.boards)){
+        // all full mini checks if the game is a tie and then here set the winner to tie if it is
         megaBoard.winner = megaBoard.winner === Player.none ? Player.tie : megaBoard.winner;
-        document.getElementById("turn")!.innerText =  megaBoard.winner !== Player.tie ?
-        "payer " + megaBoard.winner + " won!" : "its a Tie!";// TODO: make a proper win screen
-        
+        megaBoard.showWinner();
         disableAllButtons();
         HilightAllMiniWin();
         return megaBoard.winner;
@@ -415,7 +457,7 @@ function afterTurn(element: HTMLButtonElement, id: string, parentId: number): Pl
 function simulateGame(speed: number){
     let lastBoard = randomBoard();
     let count = 0;
-    const inter = setInterval(() => {
+    inter = setInterval(() => {
         let btn;
         let rand2;
         do{
@@ -438,14 +480,11 @@ function simulateGame(speed: number){
 
 
 // main 
+var inter: number;
 var currentTurn = Player.X;
-const megaBoard = createBoard();
-addBorders(megaBoard.boards);
+const megaBoard = new MegaBoard();
 
 // simulateGame(100);
 
-// ! check fix below bugs
-
 // TODO: add color red for x and blue for o
 // TODO: add button for new game
-// TODO: make on hover effect for buttons and mini boards
