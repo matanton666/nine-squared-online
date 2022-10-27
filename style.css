@@ -42,8 +42,9 @@ img {
     font-size: 20px;
     font-weight: bold;
     height: 50px;
-    width: 150px;
     border-radius: 2px;
+    margin-bottom: 20px;
+    float: right;
 }
 
 .reset:hover {

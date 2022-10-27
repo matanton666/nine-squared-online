@@ -9,14 +9,16 @@
     <title>Mega Tic Tac Toe</title>
 </head>
 <body>
-    <h2 id="title" style="text-align:center;">Mega Tic Tac Toe</h2>
-    <button id="start" onclick="megaBoard.reset();" class="reset">Reset Game</button>
-    <button id="start" onclick="simulateGame(100);" class="reset"
-    style="float:right;">Start simulation</button>
+    <div style="display: flex;">
+        <button id="start" onclick="megaBoard.reset();" class="reset">Reset Game</button>
+        <h1 id="title" style="flex: 1; text-align: center; margin-top: 0px;">Mega Tic Tac Toe</h2>
+        <button id="start" onclick="simulateGame(100);" class="reset"
+        style="float:right;">Start simulation</button>
+    </div>
 
     <table class="boardDiv" id="board">
     </table>
-    <h2 id="turn" style="text-align:center;">X turn</h2>
+    <h2 id="turn" style="text-align:center;">X</h2>
 </body>
 <script src="./dist/index.js"></script>
 </html>

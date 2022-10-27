@@ -11,6 +11,21 @@ var Player;
 })(Player || (Player = {}));
 class MegaBoard {
     constructor() {
+        this.disableAllButtons = () => {
+            megaBoard.boards.forEach(board => {
+                board.setImageVisable();
+                board.element.style.boxShadow = "0px 0px 0px 0px #494949";
+                board.element.style.scale = "1";
+                board.buttons.forEach(button => {
+                    button.element.disabled = true;
+                });
+            });
+        };
+        this.HilightAllMiniWin = () => {
+            this.boards.forEach(board => {
+                board.image.setOpacity(0.85);
+            });
+        };
         this.boards = [];
         this.winner = Player.none;
         this.reset();
@@ -20,20 +35,13 @@ class MegaBoard {
             this.eraseBoards();
         if (inter)
             clearInterval(inter);
+        inter = 0;
         this.createBoard();
         this.addBorders(this.boards);
         this.winner = Player.none;
         currentTurn = Player.X;
-        document.getElementById("turn").innerText = "X turn";
-    }
-    eraseBoards() {
-        this.boards.forEach(board => {
-            board.buttons.forEach(button => {
-                button.element.remove();
-            });
-            board.element.remove();
-        });
-        this.boards = [];
+        document.getElementById("turn").innerText = "X";
+        document.getElementById("turn").style.color = "red";
     }
     showWinner() {
         const text = document.getElementById("turn");
@@ -53,6 +61,15 @@ class MegaBoard {
                 break;
         }
         text.style.fontSize = "xx-large";
+    }
+    eraseBoards() {
+        this.boards.forEach(board => {
+            board.buttons.forEach(button => {
+                button.element.remove();
+            });
+            board.element.remove();
+        });
+        this.boards = [];
     }
     createBoard() {
         let count = 0;
@@ -226,18 +243,8 @@ const randomBoard = () => {
     } while (allFullBtn(megaBoard.boards[rand].buttons));
     return rand;
 };
-const disableAllButtons = () => {
-    megaBoard.boards.forEach(board => {
-        board.setImageVisable();
-        board.element.style.boxShadow = "0px 0px 0px 0px #494949";
-        board.element.style.scale = "1";
-        board.buttons.forEach(button => {
-            button.element.disabled = true;
-        });
-    });
-};
 function disableMiniBoardsByButton(id) {
-    disableAllButtons();
+    megaBoard.disableAllButtons();
     id = id.split("-")[1];
     let playingBoard = megaBoard.boards[parseInt(id)];
     if (allFullBtn(playingBoard.buttons)) {
@@ -291,11 +298,6 @@ function checkBoardWin(board) {
     winner = winner === Player.none ? allFullBtn(board) ? Player.tie : winner : winner;
     return winner;
 }
-const HilightAllMiniWin = () => {
-    megaBoard.boards.forEach(board => {
-        board.image.setOpacity(0.85);
-    });
-};
 function afterTurn(element, id, parentId) {
     element.disabled = true;
     const miniWin = checkBoardWin(megaBoard.boards[parentId].buttons);
@@ -305,18 +307,19 @@ function afterTurn(element, id, parentId) {
     if (megaBoard.winner !== Player.none || allFullMini(megaBoard.boards)) {
         megaBoard.winner = megaBoard.winner === Player.none ? Player.tie : megaBoard.winner;
         megaBoard.showWinner();
-        disableAllButtons();
-        HilightAllMiniWin();
-        return megaBoard.winner;
+        megaBoard.disableAllButtons();
+        megaBoard.HilightAllMiniWin();
+        return;
     }
     disableMiniBoardsByButton(id);
     currentTurn = currentTurn === Player.X ? Player.O : Player.X;
-    document.getElementById("turn").innerText = currentTurn + " turn";
-    return megaBoard.winner;
+    document.getElementById("turn").innerText = currentTurn;
+    document.getElementById("turn").style.color = currentTurn === Player.X ? "red" : "blue";
 }
 function simulateGame(speed) {
     let lastBoard = randomBoard();
-    let count = 0;
+    if (inter)
+        return;
     inter = setInterval(() => {
         let btn;
         let rand2;
@@ -332,7 +335,6 @@ function simulateGame(speed) {
         if (megaBoard.winner !== Player.none) {
             clearInterval(inter);
         }
-        count++;
     }, speed);
 }
 var inter;

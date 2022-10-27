@@ -3,6 +3,7 @@ const MINI_SIZE = 3;
 const SEEN = 0.3;
 
 // TODO: comment and clean
+
 // ********* classes and interfaces *********
 
 enum Player {
@@ -33,23 +34,30 @@ class MegaBoard {
         if (this.boards.length !== 0) 
             this.eraseBoards(); // remove boards if they exist
         if (inter) clearInterval(inter); // remove interval if it exists
+        inter = 0;
+
         this.createBoard();
         this.addBorders(this.boards);
+
         this.winner = Player.none;
         currentTurn = Player.X;
-        document.getElementById("turn")!.innerText = "X turn";
+
+        document.getElementById("turn")!.innerText = "X";
+        document.getElementById("turn")!.style.color = "red";
     }
 
-    private eraseBoards(): void {
-        this.boards.forEach(board => {
+    public disableAllButtons = () => {
+        // disable all mini boards buttons 
+        megaBoard.boards.forEach(board => {
+            board.setImageVisable();
+            board.element.style.boxShadow = "0px 0px 0px 0px #494949";
+            board.element.style.scale = "1";
             board.buttons.forEach(button => {
-                button.element.remove();
+                button.element.disabled = true;
             });
-            board.element.remove();
         });
-        this.boards = [];
     }
-
+    
     public showWinner(): void {
         const text = document.getElementById("turn")!;
         text.innerText =  this.winner !== Player.tie ?
@@ -70,6 +78,23 @@ class MegaBoard {
         }
         text.style.fontSize = "xx-large";
     }
+
+    public HilightAllMiniWin = () =>{
+        this.boards.forEach(board => {
+            board.image.setOpacity(0.85);
+        });
+    }
+
+    private eraseBoards(): void {
+        this.boards.forEach(board => {
+            board.buttons.forEach(button => {
+                button.element.remove();
+            });
+            board.element.remove();
+        });
+        this.boards = [];
+    }
+
 
     /**
      * creates the game board of one big table with 9 mini tables in it
@@ -319,22 +344,10 @@ class Button implements IButton {
 const randomBoard = (): number => {
     let rand = 0;
     do{
-    rand = Math.floor(Math.random() * MEGA_SIZE);
+        rand = Math.floor(Math.random() * MEGA_SIZE);
     }
     while (allFullBtn(megaBoard.boards[rand].buttons));
     return rand;
-}
-//TODO: move this to mega board class
-const disableAllButtons = () => {
-    // disable all mini boards buttons
-    megaBoard.boards.forEach(board => {
-        board.setImageVisable();
-        board.element.style.boxShadow = "0px 0px 0px 0px #494949";
-        board.element.style.scale = "1";
-        board.buttons.forEach(button => {
-            button.element.disabled = true;
-        });
-    });
 }
 
 /**
@@ -343,7 +356,7 @@ const disableAllButtons = () => {
  */
 function disableMiniBoardsByButton(id: string){
 
-    disableAllButtons();
+    megaBoard.disableAllButtons();
 
     id = id.split("-")[1]; // get rid of 'button-' part
     let playingBoard = megaBoard.boards[parseInt(id)]
@@ -389,7 +402,6 @@ const checkButtons = (all: Button[][]): Player => {
     return Player.none;
 }
 
-
 function checkBoardWin(board: MiniBoard[] | Button[]): Player {
     let col1 = [], col2 = [], col3 = [], diag1 = [], diag2 = [], row1 = [], row2 = [], row3 = [];
     let winner = Player.none;
@@ -419,13 +431,8 @@ function checkBoardWin(board: MiniBoard[] | Button[]): Player {
 }
 
 
-const HilightAllMiniWin = () =>{
-    megaBoard.boards.forEach(board => {
-        board.image.setOpacity(0.85);
-    });
-}
 
-function afterTurn(element: HTMLButtonElement, id: string, parentId: number): Player{
+function afterTurn(element: HTMLButtonElement, id: string, parentId: number){
     element.disabled = true;
     // check if win in mini board
     const miniWin = checkBoardWin(megaBoard.boards[parentId].buttons);
@@ -438,53 +445,52 @@ function afterTurn(element: HTMLButtonElement, id: string, parentId: number): Pl
         // all full mini checks if the game is a tie and then here set the winner to tie if it is
         megaBoard.winner = megaBoard.winner === Player.none ? Player.tie : megaBoard.winner;
         megaBoard.showWinner();
-        disableAllButtons();
-        HilightAllMiniWin();
-        return megaBoard.winner;
+        megaBoard.disableAllButtons();
+        megaBoard.HilightAllMiniWin();
+        return;
     }
 
     // disable none usable mini boards according to the button pressed
     disableMiniBoardsByButton(id);
     
     currentTurn = currentTurn === Player.X ? Player.O : Player.X;
-    document.getElementById("turn")!.innerText = currentTurn + " turn";
-    return megaBoard.winner;
+    document.getElementById("turn")!.innerText = currentTurn;
+    document.getElementById("turn")!.style.color = currentTurn === Player.X ? "red" : "blue";
 }
-
-
 
 // test the game by setting an interval to emulate a player that plays random moves
 function simulateGame(speed: number){
     let lastBoard = randomBoard();
-    let count = 0;
+    if (inter) return;
     inter = setInterval(() => {
         let btn;
         let rand2;
-        do{
+        do{ // find a random button that is not taken
             rand2 = Math.floor(Math.random() * MEGA_SIZE);
             btn = megaBoard.boards[lastBoard].buttons[rand2];
         }
         while (btn.ocupence !== Player.none && btn.element.disabled === true);
 
-        btn.element.click();
-        while (allFullBtn(megaBoard.boards[rand2].buttons)){
+        btn.element.click(); // simulate a click on the button
+        while (allFullBtn(megaBoard.boards[rand2].buttons)){ 
+            // find a mini bard that is available if the one we chose is full
             rand2 = randomBoard();
         }
+
         lastBoard = rand2;
+        //  clear if win
         if(megaBoard.winner !== Player.none) {
             clearInterval(inter);
         }
-        count++;
     }, speed);
 }
-
 
 // main 
 var inter: number;
 var currentTurn = Player.X;
 const megaBoard = new MegaBoard();
 
-// simulateGame(100);
 
 // TODO: add color red for x and blue for o
 // TODO: add button for new game
+// TODO: add button on sorintg algorithm site to this one
