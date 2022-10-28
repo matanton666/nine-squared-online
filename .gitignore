@@ -1,2 +1,17 @@
-tsconfig.json
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.swp
+
+# Build
+public/css/main.css
+
+# Editors
+.idea
+*.iml
 .vscode

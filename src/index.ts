@@ -173,8 +173,24 @@ function setClickListeners(){
         });
     });
 
+    // popup menu click listeners
+    const modal = document.getElementById("myModal")!;
+    const btn = document.getElementById("rules")!;
+    const span = document.getElementsByClassName("close")[0] as HTMLSpanElement;
 
+    btn.onclick = () => {
+        modal.style.display = "block";
+    }
+    span.onclick = () => {
+        modal.style.display = "none";
+    }
+    window.onclick = (event) => {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    }
 }
+
 
 // main 
 
@@ -182,9 +198,8 @@ var globals: classes.Globals = {
     currentTurn: classes.Player.X,
     inter: 0
 }
+
 const megaBoard = new classes.MegaBoard(globals);
 setClickListeners();
 
-// TODO: add button on sorintg algorithm site to this one
-// TODO: fix images not showing on real site
-// TODO: add rules button / page
+// TODO: add button on sorting algorithm site to this one

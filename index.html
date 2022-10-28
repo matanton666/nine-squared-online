@@ -10,6 +10,7 @@
 </head>
 <body>
     <div style="display: flex;">
+        <button id="rules" class="reset" style="margin-right: 5px;">Rules</button>
         <button id="reset" class="reset">Reset Game</button>
         <h1 id="title" style="flex: 1; text-align: center; margin-top: 0px;">Mega Tic Tac Toe</h2>
         <button id="sim" class="reset"
@@ -19,6 +20,26 @@
     <table class="boardDiv" id="board">
     </table>
     <h2 id="turn" style="text-align:center;">X</h2>
+
+    <!-- popup window -->
+    <div id="myModal" class="modal">
+
+    <!-- window content -->
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p >
+        <h1>Rules</h1>
+        <ul style="font-size: 20px;">
+          <li>The game consists of 9 mini tic tac toe boards and one big one housing them</li>
+          <li>Each player takes turns placing their mark in an empty square.</li>
+          <li>When clicking on a square the corresponding mini board is selected as the next board that can be used</li>
+          <li>The objective is to win in the big board by winning in many small ones</li><br>
+          <li>Simulation is the computer choosing randomly places on the board to and puts marks in them until some mark wins</li>
+
+      </p>
+    </div>
+  
+  </div>
 </body>
 <script type="module" src="./dist/index.js"></script>
 <script  type="module" src="./dist/classes.js"></script>

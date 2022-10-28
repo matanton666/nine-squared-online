@@ -168,13 +168,13 @@ export class MiniBoard {
     }
     setImage(type) {
         if (type === Player.X) {
-            this.image.element.src = "./../images/x.png";
+            this.image.element.src = "./images/x.png";
         }
         else if (type === Player.O) {
-            this.image.element.src = "./../images/o.png";
+            this.image.element.src = "./images/o.png";
         }
         else if (type === Player.tie) {
-            this.image.element.src = "./../images/tie2.png";
+            this.image.element.src = "./images/tie2.png";
         }
         this.image.type = type;
     }
@@ -218,17 +218,17 @@ export class Button {
         this.element.onmouseover = () => {
             if (this.ocupence === Player.none) {
                 const id = this.id.split("-")[1];
-                let stl = megaBoard.boards[parseInt(id)].element.style;
-                stl.boxShadow = "0px 0px 5px 5px #494949";
-                stl.scale = "0.98";
+                let parent = megaBoard.boards[parseInt(id)];
+                parent.element.style.boxShadow = "0px 0px 5px 5px #494949";
+                parent.element.style.scale = "0.95";
             }
         };
         this.element.onmouseout = () => {
             if (this.ocupence === Player.none) {
                 const id = this.id.split("-")[1];
-                let stl = megaBoard.boards[parseInt(id)].element.style;
-                stl.boxShadow = "0px 0px 0px 0px #494949";
-                stl.scale = "1";
+                let parent = megaBoard.boards[parseInt(id)];
+                parent.element.style.boxShadow = "0px 0px 0px 0px #494949";
+                parent.element.style.scale = "1";
             }
         };
     }

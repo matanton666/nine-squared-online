@@ -255,11 +255,11 @@ export class MiniBoard {
     // set image to be visible
     public setImage(type: Player) {
         if (type === Player.X) {
-            this.image.element.src = "./../images/x.png";
+            this.image.element.src = "./images/x.png";
         } else if (type === Player.O) {
-            this.image.element.src = "./../images/o.png";
+            this.image.element.src = "./images/o.png";
         } else if (type === Player.tie) {
-            this.image.element.src = "./../images/tie2.png";
+            this.image.element.src = "./images/tie2.png";
         }
         this.image.type = type;
     }
@@ -318,21 +318,20 @@ export class Button implements IButton {
     public setOnhover(megaBoard: MegaBoard) {
         this.element.onmouseover = () =>{
             if (this.ocupence === Player.none) {
-                // highlight the mini board that coresponds to the button hovered
+                // highlight the mini board that corresponds to the button hovered
                 const id = this.id.split("-")[1];
-                let stl = megaBoard.boards[parseInt(id)].element.style;
-                stl.boxShadow = "0px 0px 5px 5px #494949";
-                stl.scale = "0.98";
-                
+                let parent = megaBoard.boards[parseInt(id)];
+                parent.element.style.boxShadow = "0px 0px 5px 5px #494949";
+                parent.element.style.scale = "0.95";
             }
         }
         this.element.onmouseout = () =>{
             // revert to normal
             if (this.ocupence === Player.none) {
                 const id = this.id.split("-")[1];
-                let stl = megaBoard.boards[parseInt(id)].element.style;
-                stl.boxShadow = "0px 0px 0px 0px #494949";
-                stl.scale = "1";
+                let parent = megaBoard.boards[parseInt(id)];
+                parent.element.style.boxShadow = "0px 0px 0px 0px #494949";
+                parent.element.style.scale = "1";
             }
         }
     }
