@@ -255,11 +255,11 @@ export class MiniBoard {
     // set image to be visible
     public setImage(type: Player) {
         if (type === Player.X) {
-            this.image.element.src = "/images/x.png";
+            this.image.element.src = "./../images/x.png";
         } else if (type === Player.O) {
-            this.image.element.src = "/images/o.png";
+            this.image.element.src = "./../images/o.png";
         } else if (type === Player.tie) {
-            this.image.element.src = "/images/tie2.png";
+            this.image.element.src = "./../images/tie2.png";
         }
         this.image.type = type;
     }

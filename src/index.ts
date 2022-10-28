@@ -186,4 +186,5 @@ const megaBoard = new classes.MegaBoard(globals);
 setClickListeners();
 
 // TODO: add button on sorintg algorithm site to this one
+// TODO: fix images not showing on real site
 // TODO: add rules button / page
