@@ -1,7 +1,7 @@
 import * as classes from "./classes.js";
 
 // TODO: clean code and comment 
-// ***************************** fuctions for game logic *****************************
+// ***************************** functions for game logic *****************************
 const MEGA_SIZE = 9;
 
 /**
