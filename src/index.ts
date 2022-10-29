@@ -1,8 +1,7 @@
 import * as classes from "./classes.js";
 
-// TODO: clean code and comment 
 // ***************************** functions for game logic *****************************
-const MEGA_SIZE = 9;
+const MEGA_SIZE = 9; // button amount in mega board
 
 /**
  * gives a random number between 0 and 9 for a random mini board to be selected
@@ -12,7 +11,7 @@ const randomBoard = (): number => {
     let rand = 0;
     do{
         rand = Math.floor(Math.random() * MEGA_SIZE);
-    }
+    } // find a random board that is not full
     while (allFullBtn(megaBoard.boards[rand].buttons));
     return rand;
 }
@@ -31,7 +30,7 @@ function disableMiniBoardsByButton(id: string){
         playingBoard = megaBoard.boards[randomBoard()];
     } 
 
-    playingBoard.setImageInvisable();
+    playingBoard.setImageInvisable(); // if there is a image winner
     playingBoard.buttons.forEach(button => { // enable buttons in playing board
         if (button.ocupence === classes.Player.none) {
             button.element.disabled = false;
@@ -43,15 +42,15 @@ function disableMiniBoardsByButton(id: string){
 // ********* functions for checking winner in boards *********
 
 
-// functions to determine if a player won in a row colomn or diagonal
+// functions to determine if a player won in a row colomn or diagonal in the big board(mini) and in a mini board (button)
 const allEqualMini = (arr: classes.MiniBoard[]) => arr.every(v => v.winner === arr[0].winner &&v.winner !== classes.Player.none &&v.winner !== classes.Player.tie); 
-const allEqualbutton = (arr: classes.Button[]) => arr.every(v => typeof v !== "undefined" && v.ocupence === arr[0].ocupence && v.ocupence !== classes.Player.none); 
+const allEqualButton = (arr: classes.Button[]) => arr.every(v => typeof v !== "undefined" && v.ocupence === arr[0].ocupence && v.ocupence !== classes.Player.none); 
 
-// return true if there are no none elements
+// checks if a certain board is full (Btn -> a mini board) (MiniBoard -> the mega board)
 const allFullBtn = (arr: classes.Button[]) => arr.every(v => v.ocupence !== classes.Player.none);
 const allFullMini = (arr: classes.MiniBoard[]) => arr.every(v => v.winner !== classes.Player.none);
 
-
+// checks if a player won in the mega board
 const checkMiniBoards = (all: classes.MiniBoard[][]): classes.Player => {
     for (const list of all) {
         if (allEqualMini(list)){
@@ -60,19 +59,26 @@ const checkMiniBoards = (all: classes.MiniBoard[][]): classes.Player => {
     }
     return classes.Player.none;
 }
+
+// checks if a player won in a mini board
 const checkButtons = (all: classes.Button[][]): classes.Player => {
     for (const list of all) {
-        if (allEqualbutton(list)){
+        if (allEqualButton(list)){
             return list[0].ocupence;
         }
     }
     return classes.Player.none;
 }
 
+/**
+ * function takes a boards elements and checks if there is a winner in it (mini board or mega board)
+ * @param board the board to check for a winner in (mini board or mega board)
+ * @returns a winner of type Player (none if no winner)
+ */
 function checkBoardWin(board: classes.MiniBoard[] | classes.Button[]): classes.Player {
     let col1 = [], col2 = [], col3 = [], diag1 = [], diag2 = [], row1 = [], row2 = [], row3 = [];
     let winner = classes.Player.none;
-    // get all rows and colomns and diagonals to checks
+    // get all rows and columns and diagonals to checks
     row1.push(board[0], board[3], board[6]);
     row2.push(board[1], board[4], board[7]);
     row3.push(board[2], board[5], board[8]);
@@ -98,7 +104,14 @@ function checkBoardWin(board: classes.MiniBoard[] | classes.Button[]): classes.P
 }
 
 
-
+/**
+ * function is called when a button is clicked and does the checks needed
+ * (check for winners and if the board is full and does player switching)
+ * @param element the html element of the button clicked
+ * @param id the id of the button clicked
+ * @param parentId the id of the parent board of the button clicked (the mini board)
+ * @returns none
+ */
 function afterTurn(element: HTMLButtonElement, id: string, parentId: number){
     element.disabled = true;
     // check if win in mini board
@@ -120,6 +133,7 @@ function afterTurn(element: HTMLButtonElement, id: string, parentId: number){
     // disable none usable mini boards according to the button pressed
     disableMiniBoardsByButton(id);
     
+    // change turn and show it
     globals.currentTurn = globals.currentTurn === classes.Player.X ? classes.Player.O : classes.Player.X;
     document.getElementById("turn")!.innerText = globals.currentTurn;
     document.getElementById("turn")!.style.color = globals.currentTurn === classes.Player.X ? "red" : "blue";
@@ -140,12 +154,12 @@ function simulateGame(speed: number){
 
         btn.element.click(); // simulate a click on the button
         while (allFullBtn(megaBoard.boards[rand2].buttons)){ 
-            // find a mini bard that is available if the one we chose is full
+            // find a mini bard that is available if the one chosen is full
             rand2 = randomBoard();
         }
 
         lastBoard = rand2;
-        //  clear if win
+        //  finish if win
         if(megaBoard.winner !== classes.Player.none) {
             clearInterval(globals.inter);
         }
@@ -153,6 +167,9 @@ function simulateGame(speed: number){
 }
 
 
+/**
+ * function sets all necessary event listeners for the buttons in the website
+ */
 function setClickListeners(){
     // reset button
     document.getElementById("reset")!.addEventListener("click", () => {
@@ -193,13 +210,9 @@ function setClickListeners(){
 
 
 // main 
-
 var globals: classes.Globals = {
     currentTurn: classes.Player.X,
     inter: 0
 }
-
 const megaBoard = new classes.MegaBoard(globals);
 setClickListeners();
-
-// TODO: add button on sorting algorithm site to this one

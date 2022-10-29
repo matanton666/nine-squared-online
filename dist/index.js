@@ -22,7 +22,7 @@ function disableMiniBoardsByButton(id) {
     });
 }
 const allEqualMini = (arr) => arr.every(v => v.winner === arr[0].winner && v.winner !== classes.Player.none && v.winner !== classes.Player.tie);
-const allEqualbutton = (arr) => arr.every(v => typeof v !== "undefined" && v.ocupence === arr[0].ocupence && v.ocupence !== classes.Player.none);
+const allEqualButton = (arr) => arr.every(v => typeof v !== "undefined" && v.ocupence === arr[0].ocupence && v.ocupence !== classes.Player.none);
 const allFullBtn = (arr) => arr.every(v => v.ocupence !== classes.Player.none);
 const allFullMini = (arr) => arr.every(v => v.winner !== classes.Player.none);
 const checkMiniBoards = (all) => {
@@ -35,7 +35,7 @@ const checkMiniBoards = (all) => {
 };
 const checkButtons = (all) => {
     for (const list of all) {
-        if (allEqualbutton(list)) {
+        if (allEqualButton(list)) {
             return list[0].ocupence;
         }
     }

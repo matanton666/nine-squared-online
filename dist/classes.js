@@ -40,7 +40,6 @@ export class MegaBoard {
         globals.currentTurn = Player.X;
         document.getElementById("turn").innerText = "X";
         document.getElementById("turn").style.color = "red";
-        return [globals.inter, globals.currentTurn];
     }
     showWinner() {
         const text = document.getElementById("turn");
@@ -94,10 +93,6 @@ export class MegaBoard {
         const settings = "4px solid black";
         const miniSettings = "1px solid black";
         for (let i = 0; i < boards.length; i++) {
-            for (const boardNum of rightBorder) {
-                boards[boardNum].element.style.borderRight = settings;
-                boards[i].buttons[boardNum].element.style.borderRight = miniSettings;
-            }
             for (const boardNum of leftBorder) {
                 boards[boardNum].element.style.borderLeft = settings;
                 boards[i].buttons[boardNum].element.style.borderLeft = miniSettings;
@@ -109,6 +104,10 @@ export class MegaBoard {
             for (const boardNum of bottomBorder) {
                 boards[boardNum].element.style.borderBottom = settings;
                 boards[i].buttons[boardNum].element.style.borderBottom = miniSettings;
+            }
+            for (const boardNum of rightBorder) {
+                boards[boardNum].element.style.borderRight = settings;
+                boards[i].buttons[boardNum].element.style.borderRight = miniSettings;
             }
         }
     }
