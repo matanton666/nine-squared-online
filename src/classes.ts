@@ -300,14 +300,16 @@ export class MiniBoard {
 
     // set image new path
     public setImage(type: Player) {
-        if (type === Player.X) {
-            this.image.element.src = "./images/x.png";
-        } else if (type === Player.O) {
-            this.image.element.src = "./images/o.png";
-        } else if (type === Player.tie) {
-            this.image.element.src = "./images/tie2.png";
+        if (this.image.type === Player.none){ // check if image is not already set
+            if (type === Player.X) {
+                this.image.element.src = "./images/x.png";
+            } else if (type === Player.O) {
+                this.image.element.src = "./images/o.png";
+            } else if (type === Player.tie) {
+                this.image.element.src = "./images/tie2.png";
+            }
+            this.image.type = type;
         }
-        this.image.type = type;
     }
 
     // set image opacity to visible and position to fronts

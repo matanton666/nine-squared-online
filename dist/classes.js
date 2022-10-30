@@ -166,16 +166,18 @@ export class MiniBoard {
         return new TicImage(parseInt(this.id), img, typ, 0);
     }
     setImage(type) {
-        if (type === Player.X) {
-            this.image.element.src = "./images/x.png";
+        if (this.image.type === Player.none) {
+            if (type === Player.X) {
+                this.image.element.src = "./images/x.png";
+            }
+            else if (type === Player.O) {
+                this.image.element.src = "./images/o.png";
+            }
+            else if (type === Player.tie) {
+                this.image.element.src = "./images/tie2.png";
+            }
+            this.image.type = type;
         }
-        else if (type === Player.O) {
-            this.image.element.src = "./images/o.png";
-        }
-        else if (type === Player.tie) {
-            this.image.element.src = "./images/tie2.png";
-        }
-        this.image.type = type;
     }
     setImageVisable() {
         if (this.image.type !== Player.none) {
