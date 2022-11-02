@@ -47,10 +47,29 @@
 
       </p>
     </div>
-  
   </div>
-  
+
+  <!-- fire base settings -->
+    <!-- Insert this script at the bottom of the HTML, but before you use any Firebase services -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyClbUYRPEC3dpjoCYM2Ek9rFXEy0kxxd2c",
+        authDomain: "nine-squared.firebaseapp.com",
+        databaseURL: "https://nine-squared-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "nine-squared",
+        storageBucket: "nine-squared.appspot.com",
+        messagingSenderId: "209271367711",
+        appId: "1:209271367711:web:ca9aca6b33eba08cae4d2a"
+      }; 
+      firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script src="/dist/firebase.js"></script>
+    
+    <script type="module" src="./dist/index.js"></script>
+    <script  type="module" src="./dist/classes.js"></script>
 </body>
-<script type="module" src="./dist/index.js"></script>
-<script  type="module" src="./dist/classes.js"></script>
 </html>

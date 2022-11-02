@@ -209,6 +209,9 @@ function setClickListeners(){
 }
 
 
+
+
+
 // main 
 var globals: classes.Globals = {
     currentTurn: classes.Player.X,
