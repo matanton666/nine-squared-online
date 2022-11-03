@@ -1,4 +1,5 @@
-(function () {
+
+function startFirebase() {
     let playerId;
     let playerRef;
     let secondPlayer;
@@ -60,5 +61,6 @@
         // ...
         console.log(errorCode, errorMessage);
     });
-    }
-)();
+}
+
+// startFirebase();
