@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--style sheet-->
+    <link rel="stylesheet" href="style.css">
+    <title>Nine Squared</title>
+</head>
+
+
+<body>
+  <!-- main menu -->
+    <div class="menu">
+        <button id="home" class="reset" style="margin-right: 5px;" onclick="window.location.href='/openingPage.html'">home</button>
+        <button id="reset" class="reset">Reset Game</button>
+        <h1 id="title" class="title" >Nine Squared</h2>
+        <button id="sim" class="reset"
+        style="float:right;">Start simulation</button>
+    </div>
+    <!-- table of the main board -->
+    <table class="boardDiv" id="board">
+    </table>
+    <h2 id="turn" style="text-align:center;">X</h2>
+
+
+
+
+  <!-- fire base settings -->
+    <!-- Insert this script at the bottom of the HTML, but before you use any Firebase services -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyClbUYRPEC3dpjoCYM2Ek9rFXEy0kxxd2c",
+        authDomain: "nine-squared.firebaseapp.com",
+        databaseURL: "https://nine-squared-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "nine-squared",
+        storageBucket: "nine-squared.appspot.com",
+        messagingSenderId: "209271367711",
+        appId: "1:209271367711:web:ca9aca6b33eba08cae4d2a"
+      }; 
+      //firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script src="/dist/firebase.js"></script>
+    
+    <script type="module" src="./dist/index.js"></script>
+    <script  type="module" src="./dist/classes.js"></script>
+</body>
+</html>

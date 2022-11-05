@@ -4,50 +4,105 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--style sheet-->
-    <link rel="stylesheet" href="style.css">
     <title>Nine Squared</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
-
-
 <body>
-  <!-- main menu -->
-    <div class="menu">
-        <button id="home" class="reset" style="margin-right: 5px;" onclick="window.location.href='/openingPage.html'">home</button>
-        <button id="reset" class="reset">Reset Game</button>
-        <h1 id="title" class="title" >Nine Squared</h2>
-        <button id="sim" class="reset"
-        style="float:right;">Start simulation</button>
-    </div>
-    <!-- table of the main board -->
-    <table class="boardDiv" id="board">
-    </table>
-    <h2 id="turn" style="text-align:center;">X</h2>
-
-
-
-
-  <!-- fire base settings -->
-    <!-- Insert this script at the bottom of the HTML, but before you use any Firebase services -->
-    <script type="module" src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyClbUYRPEC3dpjoCYM2Ek9rFXEy0kxxd2c",
-        authDomain: "nine-squared.firebaseapp.com",
-        databaseURL: "https://nine-squared-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "nine-squared",
-        storageBucket: "nine-squared.appspot.com",
-        messagingSenderId: "209271367711",
-        appId: "1:209271367711:web:ca9aca6b33eba08cae4d2a"
-      }; 
-      //firebase.initializeApp(firebaseConfig);
-    </script>
-
-    <script src="/dist/firebase.js"></script>
+    <h1 style="text-align: center;">Nine Squared</h1>
     
-    <script type="module" src="./dist/index.js"></script>
-    <script  type="module" src="./dist/classes.js"></script>
+    <div class="Div" style="flex-direction: column;">
+        <button id="rules" class="reset">rules</button>
+        <button id="offline game" class="reset">Offline Game</button>
+        <button id="online game" class="reset">Online Game</button>
+    </div>
+
+    <div id="online btns" class="Div" style="visibility: hidden;">
+        <button id="join game" class="reset">join game</button>
+        <button id="create game" class="reset">create game</button>
+    </div>
+
+    <div id="join form" class="Div"  style="visibility: hidden;">
+        <input id="game id" type="number" placeholder="game id" maxlength="5"
+        required oninput="javascript: if (this.value.length > this.maxLength)
+         this.value = this.value.slice(0, this.maxLength);" >
+        <button id="submit game id">join</button>
+    </div>
+    
+    <!-- popup window -->
+    <div id="myModal" class="modal">
+    <!-- window content -->
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p >
+            <h1>Rules</h1>
+            <ul style="font-size: 20px;">
+            <li>The game consists of 9 mini tic tac toe boards and one big one housing them</li>
+            <li>Each player takes turns placing their mark in an empty square.</li>
+            <li>When clicking on a square the corresponding mini board is selected as the next board that can be used</li>
+            <li>The objective is to win in the big board by winning in many small ones</li>
+            <li>Important notes:
+            <ul>
+                <li>If a corresponding board is full, a random board will be chosen</li>
+                <li>a mini board that is won does not mean you can't play on it anymore (but the board winner can't be changed) </li>
+                </ul>
+            </li><br>
+            <li>Simulation is the computer choosing randomly places on the board to and puts marks in them until some mark wins (note that in some rare occasions it can crash) </li>
+    
+        </p>
+        </div>
+    </div>
 </body>
+<script>
+
+        // popup menu click listeners
+        const modal = document.getElementById("myModal");
+        const btn = document.getElementById("rules");
+        const span = document.getElementsByClassName("close")[0];
+    
+        btn.onclick = () => {
+            modal.style.display = "block";
+        }
+        span.onclick = () => {
+            modal.style.display = "none";
+        }
+        window.onclick = (event) => {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+    const randomId = () => {
+        let id = "";
+        for (let i = 0; i < 5; i++) {
+            id += Math.floor(Math.random() * 10);
+        }
+        return id;
+    }
+    
+    document.getElementById("offline game").addEventListener("click", function(){
+        window.location.href = "/index.html?gameId=0";
+    });
+    document.getElementById("online game").addEventListener("click", function(){
+        document.getElementById("online btns").style.visibility = "visible";
+    });
+
+    document.getElementById("join game").addEventListener("click", function(){
+        document.getElementById("join form").style.visibility = "visible";
+        document.getElementById("submit game id").addEventListener("click", function(){
+            let id = document.getElementById("game id").value;
+            console.log(typeof id);
+            if (id.length == 5) {
+                window.location.href = "/index.html?id=" + id + "&player=o";
+            }
+            else {
+                alert("invalid game id");
+            }
+        });
+    });
+    document.getElementById("create game").addEventListener("click", function(){
+        // open game window with random game id
+        window.location.href = "/index.html?gameId=" + randomId() + "&player=x";
+        //TODO: check if id is not already in use (do in index.html)
+    });
+    
+</script>
 </html>
