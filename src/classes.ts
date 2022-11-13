@@ -7,6 +7,7 @@ const SEEN = 0.3; // opacity
 export interface Globals {
     currentTurn: Player;
     inter: number;
+    gameId: number;
 }
 
 

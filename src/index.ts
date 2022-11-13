@@ -170,17 +170,24 @@ function simulateGame(speed: number){
 /**
  * function sets all necessary event listeners for the buttons in the website
  */
-function setClickListeners(){
+function setClickListeners(noSim: boolean=false){
     // reset button
     document.getElementById("reset")!.addEventListener("click", () => {
         let out = megaBoard.reset(globals);
         setClickListeners();
     });
 
-    // simulate button
-    document.getElementById("sim")!.addEventListener("click", () => {
-        simulateGame(100);
-    });
+    if (!noSim){
+        // simulate button
+        document.getElementById("sim")!.addEventListener("click", () => {
+            simulateGame(100);
+        });
+    }  
+    else
+    {
+        // stop simulation button
+        document.getElementById("sim")!.style.visibility = "hidden";
+    }
 
     // buttons on board
     megaBoard.boards.forEach((board) => {
@@ -192,13 +199,34 @@ function setClickListeners(){
 }
 
 
-
-
+function startGame(globals: classes.Globals){
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameId = urlParams.get('gameId');
+    if (gameId === "0"){ // offline game
+        setClickListeners();
+    }
+    else 
+    {
+        // online game
+        const player = urlParams.get('player');
+        console.log(gameId, player);
+        if (gameId === null || player === null){ 
+            alert(`game with that code does not exist`); // set game to offline
+            window.location.href = "/index.html";
+            return;
+        }
+        // set game for 2 players
+        globals.gameId = parseInt(gameId);
+        setClickListeners(true);
+        megaBoard.disableAllButtons();
+    }
+}
 
 // main 
 var globals: classes.Globals = {
     currentTurn: classes.Player.X,
-    inter: 0
+    inter: 0,
+    gameId: 0
 }
 const megaBoard = new classes.MegaBoard(globals);
-setClickListeners();
+startGame(globals);

@@ -10,18 +10,18 @@
 <body>
     <h1 style="text-align: center;">Nine Squared</h1>
     
-    <div class="Div" style="flex-direction: column;">
+    <div class="container">
         <button id="rules" class="reset">rules</button>
         <button id="offline game" class="reset">Offline Game</button>
         <button id="online game" class="reset">Online Game</button>
     </div>
 
-    <div id="online btns" class="Div" style="visibility: hidden;">
-        <button id="join game" class="reset">join game</button>
+    <div id="online btns" class="container" style="visibility: hidden;">
         <button id="create game" class="reset">create game</button>
+        <button id="join game" class="reset">join game</button>
     </div>
 
-    <div id="join form" class="Div"  style="visibility: hidden;">
+    <div id="join form" class="container"  style="visibility: hidden;">
         <input id="game id" type="number" placeholder="game id" maxlength="5"
         required oninput="javascript: if (this.value.length > this.maxLength)
          this.value = this.value.slice(0, this.maxLength);" >
@@ -79,7 +79,7 @@
     }
     
     document.getElementById("offline game").addEventListener("click", function(){
-        window.location.href = "/index.html?gameId=0";
+        window.location.href = "/game.html?gameId=0";
     });
     document.getElementById("online game").addEventListener("click", function(){
         document.getElementById("online btns").style.visibility = "visible";
@@ -91,7 +91,7 @@
             let id = document.getElementById("game id").value;
             console.log(typeof id);
             if (id.length == 5) {
-                window.location.href = "/index.html?id=" + id + "&player=o";
+                window.location.href = "/game.html?id=" + id + "&player=o";
             }
             else {
                 alert("invalid game id");
@@ -100,8 +100,8 @@
     });
     document.getElementById("create game").addEventListener("click", function(){
         // open game window with random game id
-        window.location.href = "/index.html?gameId=" + randomId() + "&player=x";
-        //TODO: check if id is not already in use (do in index.html)
+        window.location.href = "/game.html?gameId=" + randomId() + "&player=x";
+        //TODO: check if id is not already in use (do in game.html)
     });
     
 </script>

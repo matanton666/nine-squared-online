@@ -101,14 +101,19 @@ function simulateGame(speed) {
         }
     }, speed);
 }
-function setClickListeners() {
+function setClickListeners(noSim = false) {
     document.getElementById("reset").addEventListener("click", () => {
         let out = megaBoard.reset(globals);
         setClickListeners();
     });
-    document.getElementById("sim").addEventListener("click", () => {
-        simulateGame(100);
-    });
+    if (!noSim) {
+        document.getElementById("sim").addEventListener("click", () => {
+            simulateGame(100);
+        });
+    }
+    else {
+        document.getElementById("sim").style.visibility = "hidden";
+    }
     megaBoard.boards.forEach((board) => {
         board.buttons.forEach((button) => {
             button.setOnclick(globals, afterTurn);
@@ -116,10 +121,30 @@ function setClickListeners() {
         });
     });
 }
+function startGame(globals) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameId = urlParams.get('gameId');
+    if (gameId === "0") {
+        setClickListeners();
+    }
+    else {
+        const player = urlParams.get('player');
+        console.log(gameId, player);
+        if (gameId === null || player === null) {
+            alert(`game with that code does not exist`);
+            window.location.href = "/index.html";
+            return;
+        }
+        globals.gameId = parseInt(gameId);
+        setClickListeners(true);
+        megaBoard.disableAllButtons();
+    }
+}
 var globals = {
     currentTurn: classes.Player.X,
-    inter: 0
+    inter: 0,
+    gameId: 0
 };
 const megaBoard = new classes.MegaBoard(globals);
-setClickListeners();
+startGame(globals);
 //# sourceMappingURL=index.js.map

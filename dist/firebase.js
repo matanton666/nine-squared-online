@@ -1,3 +1,14 @@
+const firebaseConfig = {
+    apiKey: "AIzaSyClbUYRPEC3dpjoCYM2Ek9rFXEy0kxxd2c",
+    authDomain: "nine-squared.firebaseapp.com",
+    databaseURL: "https://nine-squared-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "nine-squared",
+    storageBucket: "nine-squared.appspot.com",
+    messagingSenderId: "209271367711",
+    appId: "1:209271367711:web:ca9aca6b33eba08cae4d2a"
+}; 
+
+//firebase.initializeApp(firebaseConfig);
 
 function startFirebase() {
     let playerId;
@@ -5,9 +16,6 @@ function startFirebase() {
     let secondPlayer;
 
     const gameBoard = document.getElementById('board');
-
-    function onPlayerClick(placement) { 
-    }
 
     function initGame() {
         const secondPlayer = firebase.database().ref('players');
