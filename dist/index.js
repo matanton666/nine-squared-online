@@ -129,7 +129,6 @@ function startGame(globals) {
     }
     else {
         const player = urlParams.get('player');
-        console.log(gameId, player);
         if (gameId === null || player === null) {
             alert(`game with that code does not exist`);
             window.location.href = "/index.html";

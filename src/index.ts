@@ -209,7 +209,6 @@ function startGame(globals: classes.Globals){
     {
         // online game
         const player = urlParams.get('player');
-        console.log(gameId, player);
         if (gameId === null || player === null){ 
             alert(`game with that code does not exist`); // set game to offline
             window.location.href = "/index.html";
