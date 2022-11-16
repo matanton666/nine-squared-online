@@ -8,7 +8,7 @@ const firebaseConfig = {
     appId: "1:209271367711:web:ca9aca6b33eba08cae4d2a"
 }; 
 
-function startFirebase(playerId, playerRef) {
+function startFirebaseCreate() {
 
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
@@ -18,15 +18,15 @@ function startFirebase(playerId, playerRef) {
             
             playerRef.set({
                 name: playerId.slice(-5).toUpperCase(),
+                id: playerId,
                 xOro: "x",
                 winner: "false",
                 gameId: new URLSearchParams(window.location.search).get("gameId")
             });
             
-            console.log(playerRef);
             playerRef.onDisconnect().remove();
 
-            initGame(playerId, playerRef);
+            initGameCreate();
         }
         else{
             console.log("logged out");
@@ -41,40 +41,49 @@ function startFirebase(playerId, playerRef) {
         console.log(errorCode, errorMessage);
     });
 }
-function initGame(playerId, playerRef) {
+function initGameCreate() {
     const allPlayerRef = firebase.database().ref('players');
-    let secondPlayer, currPlayer;
 
     allPlayerRef.on('value', (snapshot) => {
         // occurs on whenever change in the database
         players = snapshot.val() || {};
         Object.keys(players).forEach((key) => {
-            if (key != playerId) {
-                // if the player is not the current player, then add it to the second player
-                secondPlayer = players[key];
+            if (players[key] == secondPlayer) {
+                // player value changed
             }
-            else {
-                currPlayer = players[key];
+            else if (players[key] == currPlayer) {
+                // player value changed
             }
         });
-        console.log("other player", secondPlayer);
-        console.log("current player", currPlayer);
-        //     //TODO: call function to start game
-        // Now update the DOM
     });
 
     allPlayerRef.on('child_added', (snapshot) => {
         // occures on new node on tree
-        const addedPlayer = snapshot.val();
-        if (addedPlayer.id !== playerId) {
-            // other player joined
+        const addedPlayer = snapshot.val() || {};
+        if (addedPlayer.id !== playerId && currPlayer !== undefined) {
+            if (addedPlayer.gameId === currPlayer.gameId) {
+                // if the player is not the current player, then add it to the second player
+                secondPlayer = addedPlayer;
+                console.log("other player", secondPlayer);
+                //     //TODO: call function to start game
+                // Now update the DOM
+            }
         }
         else if (addedPlayer.id === playerId) {
             // this player joined
+            currPlayer = addedPlayer;
+            console.log("current player", currPlayer);
         }
         // put here all code to initiate a player
     });
 }
+
+
+
+
+
+let playerId, playerRef, secondPlayerRef;
+let secondPlayer, currPlayer;
 
 document.addEventListener("DOMContentLoaded", function(){
     const urlParams = new URLSearchParams(window.location.search);
@@ -82,12 +91,15 @@ document.addEventListener("DOMContentLoaded", function(){
         // offline game and do not execute firebase
         return;
     }
-    else 
-    {
-        let playerId, playerRef;
+    else if (urlParams.get("player") === "x") {
         // start firebase and wait for other player
         firebase.initializeApp(firebaseConfig);
-        startFirebase(playerId, playerRef);
+        startFirebaseCreate();
+    }
+    else if (urlParams.get("player") === "o") {
+        // start firebase and wait for other player
+        firebase.initializeApp(firebaseConfig);
+        startFirebaseCreate();
     }
 
 });
