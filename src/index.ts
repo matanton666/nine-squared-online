@@ -170,7 +170,7 @@ function simulateGame(speed: number){
 /**
  * function sets all necessary event listeners for the buttons in the website
  */
-function setClickListeners(noSim: boolean=false){
+export function setClickListeners(noSim: boolean=false){
     // reset button
     document.getElementById("reset")!.addEventListener("click", () => {
         let out = megaBoard.reset(globals);
@@ -202,12 +202,25 @@ function setClickListeners(noSim: boolean=false){
 function startGame(globals: classes.Globals){
     const urlParams = new URLSearchParams(window.location.search);
     const gameId = urlParams.get('gameId');
+
+
     if (gameId === "0"){ // offline game
+        document.getElementById("gameID")!.style.visibility = "hidden";
+        document.getElementById("onlineText")!.style.visibility = "hidden";
+        document.getElementById("copy")!.style.visibility = "hidden";
+        document.getElementById("startOnlineGame")!.style.visibility = "hidden";
+
         setClickListeners();
     }
     else 
     {
         // online game
+        document.getElementById("turn")!.style.visibility = "hidden";
+
+        document.getElementById("gameID")!.innerHTML = "game id: " + gameId;
+        document.getElementById("copy")!.addEventListener("click", function(){
+            navigator.clipboard.writeText(gameId as string);
+        });
         const player = urlParams.get('player');
         if (gameId === null || player === null){ 
             alert(`game with that code does not exist`); // set game to offline
@@ -217,15 +230,15 @@ function startGame(globals: classes.Globals){
         // set game for 2 players
         globals.gameId = parseInt(gameId);
         setClickListeners(true);
-        megaBoard.disableAllButtons();
+        megaBoard.eraseBoards();
     }
 }
 
 // main 
-var globals: classes.Globals = {
+export var globals: classes.Globals = {
     currentTurn: classes.Player.X,
     inter: 0,
     gameId: 0
 }
-const megaBoard = new classes.MegaBoard(globals);
-startGame(globals);
+export const megaBoard = new classes.MegaBoard(globals);
+startGame(globals); 

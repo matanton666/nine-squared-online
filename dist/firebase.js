@@ -1,3 +1,6 @@
+import * as classes from "./classes.js";
+import * as index from "./index.js";
+
 const firebaseConfig = {
     apiKey: "AIzaSyClbUYRPEC3dpjoCYM2Ek9rFXEy0kxxd2c",
     authDomain: "nine-squared.firebaseapp.com",
@@ -41,12 +44,25 @@ function startFirebaseCreate() {
         console.log(errorCode, errorMessage);
     });
 }
+
+function startOnlineGame() {
+    const removeWaitScreen = () => {
+        document.getElementById("gameID").style.visibility = "hidden";
+        document.getElementById("onlineText").style.visibility = "hidden";
+        document.getElementById("copy").style.visibility = "hidden";
+        document.getElementById("startOnlineGame").style.visibility = "hidden";
+    }
+    index.megaBoard.reset(index.globals);
+    removeWaitScreen();
+    index.setClickListeners(true);
+}
+
 function initGameCreate() {
     const allPlayerRef = firebase.database().ref('players');
 
     allPlayerRef.on('value', (snapshot) => {
         // occurs on whenever change in the database
-        players = snapshot.val() || {};
+        let players = snapshot.val() || {};
         Object.keys(players).forEach((key) => {
             if (players[key] == secondPlayer) {
                 // player value changed
@@ -65,8 +81,8 @@ function initGameCreate() {
                 // if the player is not the current player, then add it to the second player
                 secondPlayer = addedPlayer;
                 console.log("other player", secondPlayer);
-                //     //TODO: call function to start game
-                // Now update the DOM
+                document.getElementById("startOnlineGame").style.visibility = "visible";
+                document.getElementById("startOnlineGame").addEventListener("click", startOnlineGame);
             }
         }
         else if (addedPlayer.id === playerId) {
@@ -87,8 +103,11 @@ let secondPlayer, currPlayer;
 
 document.addEventListener("DOMContentLoaded", function(){
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("gameId") === "0") {
+    const gameId = urlParams.get("gameId");
+
+    if (gameId === "0") {
         // offline game and do not execute firebase
+        // TODO: make online buttons and sutch invisible
         return;
     }
     else if (urlParams.get("player") === "x") {

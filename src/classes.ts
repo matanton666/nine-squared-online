@@ -118,7 +118,7 @@ export class MegaBoard {
     /**
      * removes all the mini boards from the mega board
      */
-    private eraseBoards(): void {
+    public eraseBoards(): void {
         this.boards.forEach(board => {
             board.buttons.forEach(button => {
                 button.element.remove();

@@ -101,7 +101,7 @@ function simulateGame(speed) {
         }
     }, speed);
 }
-function setClickListeners(noSim = false) {
+export function setClickListeners(noSim = false) {
     document.getElementById("reset").addEventListener("click", () => {
         let out = megaBoard.reset(globals);
         setClickListeners();
@@ -125,9 +125,18 @@ function startGame(globals) {
     const urlParams = new URLSearchParams(window.location.search);
     const gameId = urlParams.get('gameId');
     if (gameId === "0") {
+        document.getElementById("gameID").style.visibility = "hidden";
+        document.getElementById("onlineText").style.visibility = "hidden";
+        document.getElementById("copy").style.visibility = "hidden";
+        document.getElementById("startOnlineGame").style.visibility = "hidden";
         setClickListeners();
     }
     else {
+        document.getElementById("turn").style.visibility = "hidden";
+        document.getElementById("gameID").innerHTML = "game id: " + gameId;
+        document.getElementById("copy").addEventListener("click", function () {
+            navigator.clipboard.writeText(gameId);
+        });
         const player = urlParams.get('player');
         if (gameId === null || player === null) {
             alert(`game with that code does not exist`);
@@ -136,14 +145,14 @@ function startGame(globals) {
         }
         globals.gameId = parseInt(gameId);
         setClickListeners(true);
-        megaBoard.disableAllButtons();
+        megaBoard.eraseBoards();
     }
 }
-var globals = {
+export var globals = {
     currentTurn: classes.Player.X,
     inter: 0,
     gameId: 0
 };
-const megaBoard = new classes.MegaBoard(globals);
+export const megaBoard = new classes.MegaBoard(globals);
 startGame(globals);
 //# sourceMappingURL=index.js.map

@@ -23,18 +23,28 @@
         <h1 id="title" class="title" >Nine Squared</h2>
         <button id="sim" class="reset"
         style="float:right;">Start simulation</button>
-    </div>
+      </div>
 
-    <div class="onlineGameText">
-      <h2 id="onlineText">waiting for second player...</h2>
-      <button class="reset" style="visibility: hidden;" id="startOnlineGame">start game</button>
-    </div>
 
     <!-- game board -->
     <!-- table of the main board -->
     <table class="boardDiv" id="board">
     </table>
     <h2 id="turn" style="text-align:center;">X</h2>
+
+    <table class="onlineGameText">
+      <tr>
+        <td><h2 id="onlineText">waiting for second player...</h2></td>
+      </tr>
+      <tr>
+        <td><h3 id="gameID"></h3></td>
+        <td><button id="copy" class="reset" style="font-size: 10px; height:fit-content;">copy game ID</button></td>
+      </tr>
+      <tr>
+      <td><button class="reset" style="visibility: hidden;" id="startOnlineGame">start game</button></td>
+      </tr>
+    </table>
+
 
 
 
@@ -48,6 +58,6 @@
     
     <script type="module" src="./dist/index.js"></script>
     <script  type="module" src="./dist/classes.js"></script>
-    <script src="/dist/firebase.js"></script>
+    <script type="module" src="./dist/firebase.js"></script>
 </body>
 </html>
