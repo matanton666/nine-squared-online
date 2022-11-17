@@ -11,7 +11,16 @@ const firebaseConfig = {
     appId: "1:209271367711:web:ca9aca6b33eba08cae4d2a"
 }; 
 
-function startFirebaseCreate() {
+
+const removeWaitScreen = () => {
+    document.getElementById("gameID").style.visibility = "hidden";
+    document.getElementById("onlineText").style.visibility = "hidden";
+    document.getElementById("copy").style.visibility = "hidden";
+    document.getElementById("startOnlineGame").style.visibility = "hidden";
+}
+
+
+function startFirebase() {
 
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
@@ -29,7 +38,10 @@ function startFirebaseCreate() {
             
             playerRef.onDisconnect().remove();
 
-            initGameCreate();
+            if (createOrJoin === "create")
+                initGameCreate();
+            else
+                initGameJoin();
         }
         else{
             console.log("logged out");
@@ -45,17 +57,6 @@ function startFirebaseCreate() {
     });
 }
 
-function startOnlineGame() {
-    const removeWaitScreen = () => {
-        document.getElementById("gameID").style.visibility = "hidden";
-        document.getElementById("onlineText").style.visibility = "hidden";
-        document.getElementById("copy").style.visibility = "hidden";
-        document.getElementById("startOnlineGame").style.visibility = "hidden";
-    }
-    index.megaBoard.reset(index.globals);
-    removeWaitScreen();
-    index.setClickListeners(true);
-}
 
 function initGameCreate() {
     const allPlayerRef = firebase.database().ref('players');
@@ -96,8 +97,55 @@ function initGameCreate() {
 
 
 
+function initGameJoin() {
+    const allPlayerRef = firebase.database().ref('players');
+
+    allPlayerRef.on('value', (snapshot) => {
+        // occurs on whenever change in the database
+        let players = snapshot.val() || {};
+        Object.keys(players).forEach((key) => {
+            if (players[key] == secondPlayer) {
+                // player value changed
+            }
+            else if (players[key] == currPlayer) {
+                // player value changed
+            }
+        });
+    });
+
+    allPlayerRef.on('child_added', (snapshot) => {
+        // occures on new node on tree
+        const addedPlayer = snapshot.val() || {};
+        if (addedPlayer.id !== playerId && currPlayer !== undefined) {
+            if (addedPlayer.gameId === currPlayer.gameId) {
+                // if the player is not the current player, then add it to the second player
+                secondPlayer = addedPlayer;
+                console.log("other player", secondPlayer);
+                // change text to "waiting for other player to start game"
+                document.getElementById("onlineText").innerHTML = "Waiting for other player to start game";
+                removeWaitScreen();
+                document.getElementById("onlineText").style.visibility = "visible";
+
+            }
+        }
+        else if (addedPlayer.id === playerId) {
+            // this player joined
+            currPlayer = addedPlayer;
+            console.log("current player", currPlayer);
+        }
+        // put here all code to initiate a player
+    });
+}
 
 
+function startOnlineGame() {
+    index.megaBoard.reset(index.globals);
+    removeWaitScreen();
+    index.setClickListeners(true);
+}
+
+
+let createOrJoin;
 let playerId, playerRef, secondPlayerRef;
 let secondPlayer, currPlayer;
 
@@ -113,12 +161,14 @@ document.addEventListener("DOMContentLoaded", function(){
     else if (urlParams.get("player") === "x") {
         // start firebase and wait for other player
         firebase.initializeApp(firebaseConfig);
-        startFirebaseCreate();
+        createOrJoin = "create"
+        startFirebase();
     }
     else if (urlParams.get("player") === "o") {
         // start firebase and wait for other player
         firebase.initializeApp(firebaseConfig);
-        startFirebaseCreate();
+        createOrJoin = "join"
+        startFirebase();
     }
 
 });
