@@ -20,23 +20,13 @@ const removeWaitScreen = () => {
 }
 
 
+
 function startFirebase() {
 
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
             // User is signed in.
             playerId = user.uid;
-            playerRef = firebase.database().ref("players/" + playerId);
-            
-            playerRef.set({
-                name: playerId.slice(-5).toUpperCase(),
-                id: playerId,
-                xOro: "x",
-                winner: "false",
-                gameId: new URLSearchParams(window.location.search).get("gameId")
-            });
-            
-            playerRef.onDisconnect().remove();
 
             if (createOrJoin === "create")
                 initGameCreate();
@@ -59,7 +49,18 @@ function startFirebase() {
 
 
 function initGameCreate() {
-    const allPlayerRef = firebase.database().ref('players');
+    const allPlayerRef = firebase.database().ref(`games/${gameId}/players/`);
+    gameRef = firebase.database().ref(`games/${gameId}`);
+    let xo = createOrJoin === "create" ? "X" : "O";
+    playerRef = firebase.database().ref(`games/${gameId}/players/${playerId}`);
+
+    playerRef.set({
+        id: playerId,
+        xOro: xo,
+        winner: "false",
+    });
+    
+    playerRef.onDisconnect().remove();
 
     allPlayerRef.on('value', (snapshot) => {
         // occurs on whenever change in the database
@@ -99,6 +100,9 @@ function initGameCreate() {
 
 function initGameJoin() {
     const allPlayerRef = firebase.database().ref('players');
+    // allPlayerRef.once("value", (shapshot) => {
+    //     let players = shapshot.val() || {};
+    // }); // get one time the value of the database
 
     allPlayerRef.on('value', (snapshot) => {
         // occurs on whenever change in the database
@@ -144,31 +148,59 @@ function startOnlineGame() {
     index.setClickListeners(true);
 }
 
+function checkGameIdInDataBase(id) {
+    try{
+        firebase.initializeApp(firebaseConfig);
+        const allPlayerRef = firebase.database().ref(`players/`);
+        allPlayerRef.on('value', (snapshot) => {
 
-let createOrJoin;
+            let players = snapshot.val() || {};
+            Object.keys(players).forEach((key) => {
+                console.log(players[key]);
+                if (players[key].gameId === id) {
+                    return true;
+                }
+            });
+            return false;
+        });
+        console.log("ddddddddddddddd");
+    }
+    catch(e) {
+        console.log("no games with this id" + e);
+        return false;
+    }
+}
+
+
+let createOrJoin, gameId, gameRef;
 let playerId, playerRef, secondPlayerRef;
 let secondPlayer, currPlayer;
 
 document.addEventListener("DOMContentLoaded", function(){
     const urlParams = new URLSearchParams(window.location.search);
-    const gameId = urlParams.get("gameId");
+    gameId = urlParams.get("gameId");
 
     if (gameId === "0") {
         // offline game and do not execute firebase
-        // TODO: make online buttons and sutch invisible
         return;
     }
-    else if (urlParams.get("player") === "x") {
+    if (urlParams.get("player") === "x") {
         // start firebase and wait for other player
         firebase.initializeApp(firebaseConfig);
         createOrJoin = "create"
         startFirebase();
     }
-    else if (urlParams.get("player") === "o") {
-        // start firebase and wait for other player
-        firebase.initializeApp(firebaseConfig);
-        createOrJoin = "join"
-        startFirebase();
+    else if (checkGameIdInDataBase(gameId)) {
+        if (urlParams.get("player") === "o") {
+            // start firebase and wait for other player
+            createOrJoin = "join"
+            // startFirebase();
+        }
+        
     }
-
+    else {
+        // game id not found in database
+        // window.alert("Game id not found");
+        // window.location.href = "/index.html";
+    }
 });

@@ -206,6 +206,7 @@ function startGame(globals: classes.Globals){
 
     if (gameId === "0"){ // offline game
         document.getElementById("gameID")!.style.visibility = "hidden";
+        document.getElementById("reset")!.style.visibility = "visible";
         document.getElementById("onlineText")!.style.visibility = "hidden";
         document.getElementById("copy")!.style.visibility = "hidden";
         document.getElementById("startOnlineGame")!.style.visibility = "hidden";
@@ -216,7 +217,6 @@ function startGame(globals: classes.Globals){
     {
         // online game
         document.getElementById("turn")!.style.visibility = "hidden";
-
         document.getElementById("gameID")!.innerHTML = "game id: " + gameId;
         document.getElementById("copy")!.addEventListener("click", function(){
             navigator.clipboard.writeText(gameId as string);
@@ -240,5 +240,6 @@ export var globals: classes.Globals = {
     inter: 0,
     gameId: 0
 }
+
 export const megaBoard = new classes.MegaBoard(globals);
 startGame(globals); 
