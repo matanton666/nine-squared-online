@@ -19,6 +19,10 @@ const removeWaitScreen = () => {
     document.getElementById("startOnlineGame").style.visibility = "hidden";
 }
 
+const loadingScreen = () => {
+    document.getElementById("onlineText").innerHTML = "Loading...";
+    document.getElementById("onlineText").style.visibility = "visible";
+}
 
 
 function startFirebase() {
@@ -27,6 +31,19 @@ function startFirebase() {
         if (user) {
             // User is signed in.
             playerId = user.uid;
+
+            const database = firebase.database();
+            gameRef = database.ref(`games/${gameId}`);
+            playerRef = database.ref(`games/${gameId}/players/${playerId}`);
+        
+            let xOro = createOrJoin === "create" ? classes.Player.X : classes.Player.O;
+            playerRef.set({
+                id: playerId,
+                xOro: xOro,
+                winner: "false",
+            });
+            
+            playerRef.onDisconnect().remove();
 
             if (createOrJoin === "create")
                 initGameCreate();
@@ -49,31 +66,22 @@ function startFirebase() {
 
 
 function initGameCreate() {
-    const allPlayerRef = firebase.database().ref(`games/${gameId}/players/`);
-    gameRef = firebase.database().ref(`games/${gameId}`);
-    let xo = createOrJoin === "create" ? "X" : "O";
-    playerRef = firebase.database().ref(`games/${gameId}/players/${playerId}`);
+    const database = firebase.database();
+    const allPlayerRef = database.ref(`games/${gameId}/players/`);
 
-    playerRef.set({
-        id: playerId,
-        xOro: xo,
-        winner: "false",
-    });
-    
-    playerRef.onDisconnect().remove();
-
-    allPlayerRef.on('value', (snapshot) => {
-        // occurs on whenever change in the database
-        let players = snapshot.val() || {};
-        Object.keys(players).forEach((key) => {
-            if (players[key] == secondPlayer) {
-                // player value changed
-            }
-            else if (players[key] == currPlayer) {
-                // player value changed
-            }
-        });
-    });
+    // ! cahange to board value change
+    // allPlayerRef.on('value', (snapshot) => {
+    //     // occurs on whenever change in the database
+    //     let players = snapshot.val() || {};
+    //     Object.keys(players).forEach((key) => {
+    //         if (players[key] == secondPlayer) {
+    //             // player value changed
+    //         }
+    //         else if (players[key] == currPlayer) {
+    //             // player value changed
+    //         }
+    //     });
+    // });
 
     allPlayerRef.on('child_added', (snapshot) => {
         // occures on new node on tree
@@ -99,23 +107,22 @@ function initGameCreate() {
 
 
 function initGameJoin() {
-    const allPlayerRef = firebase.database().ref('players');
-    // allPlayerRef.once("value", (shapshot) => {
-    //     let players = shapshot.val() || {};
-    // }); // get one time the value of the database
+    const database = firebase.database();
+    const allPlayerRef = database.ref(`games/${gameId}/players/`);
 
-    allPlayerRef.on('value', (snapshot) => {
-        // occurs on whenever change in the database
-        let players = snapshot.val() || {};
-        Object.keys(players).forEach((key) => {
-            if (players[key] == secondPlayer) {
-                // player value changed
-            }
-            else if (players[key] == currPlayer) {
-                // player value changed
-            }
-        });
-    });
+    // ! change to board value change
+    // allPlayerRef.on('value', (snapshot) => {
+    //     // occurs on whenever change in the database
+    //     let players = snapshot.val() || {};
+    //     Object.keys(players).forEach((key) => {
+    //         if (players[key] == secondPlayer) {
+    //             // player value changed
+    //         }
+    //         else if (players[key] == currPlayer) {
+    //             // player value changed
+    //         }
+    //     });
+    // });
 
     allPlayerRef.on('child_added', (snapshot) => {
         // occures on new node on tree
@@ -148,27 +155,28 @@ function startOnlineGame() {
     index.setClickListeners(true);
 }
 
-function checkGameIdInDataBase(id) {
+async function checkGameIdInDataBase(id) {
+    let success = false;
     try{
         firebase.initializeApp(firebaseConfig);
-        const allPlayerRef = firebase.database().ref(`players/`);
-        allPlayerRef.on('value', (snapshot) => {
-
-            let players = snapshot.val() || {};
-            Object.keys(players).forEach((key) => {
-                console.log(players[key]);
-                if (players[key].gameId === id) {
-                    return true;
+        const gamesRef = firebase.database().ref("games");
+        await gamesRef.once("value", (snapshot) => {
+            let games = snapshot.val() || {};
+            Object.keys(games).forEach((key) => {
+                console.log(key);
+                if (key == id) {
+                    success = true;
+                    console.log("object found");
+                    return;
                 }
             });
-            return false;
         });
-        console.log("ddddddddddddddd");
     }
     catch(e) {
         console.log("no games with this id" + e);
-        return false;
+        success = false;
     }
+    return success;
 }
 
 
@@ -192,15 +200,15 @@ document.addEventListener("DOMContentLoaded", function(){
     }
     else if (checkGameIdInDataBase(gameId)) {
         if (urlParams.get("player") === "o") {
+            loadingScreen();
             // start firebase and wait for other player
             createOrJoin = "join"
-            // startFirebase();
+            startFirebase();
         }
-        
     }
     else {
         // game id not found in database
-        // window.alert("Game id not found");
-        // window.location.href = "/index.html";
+        window.alert("Game id not found");
+        window.location.href = "/index.html";
     }
 });
