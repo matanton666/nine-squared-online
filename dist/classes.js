@@ -79,12 +79,12 @@ export class MegaBoard {
         json += "]";
         return json;
     }
-    toBoardFromJson(json) {
+    fromJsonRepresentation(json) {
         const arr = JSON.parse(json);
         for (let i = 0; i < MINI_SIZE; i++) {
             for (let j = 0; j < MINI_SIZE; j++) {
-                this.boards[i * MINI_SIZE + j].winner = arr[i][j].winner;
-                this.boards[i * MINI_SIZE + j].fromJsonRepresentation(arr[i][j].buttons);
+                this.boards[i * MINI_SIZE + j].winner = arr[i].w;
+                this.boards[i * MINI_SIZE + j].fromJsonRepresentation(JSON.stringify(arr[i].btns));
             }
         }
     }
@@ -223,9 +223,8 @@ export class MiniBoard {
     }
     fromJsonRepresentation(json) {
         const obj = JSON.parse(json);
-        this.winner = obj.w;
         for (let i = 0; i < this.buttons.length; i++) {
-            this.buttons[i].fromJsonRepresentation(obj.btns[i]);
+            this.buttons[i].fromJsonRepresentation(JSON.stringify(obj[i]));
         }
     }
 }

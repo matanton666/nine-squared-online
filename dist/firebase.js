@@ -36,6 +36,7 @@ const setBoardChangeListener = (database) => {
     database.ref(`games/${gameId}/board`).on('value', (snapshot) => {
         // occurs on whenever change in the database
         let board = snapshot.val() || {};
+        console.log(index.megaBoard);
         index.megaBoard.fromJsonRepresentation(board);
     });
     index.setClickListeners(true);
@@ -135,7 +136,9 @@ function initGameJoin() {
         if (isStarted == true) {
             console.log("game started");
             removeWaitScreen();
-            setBoardChangeListener();
+            index.megaBoard.reset(index.globals);
+            index.megaBoard.disableAllButtons();
+            setBoardChangeListener(database);
         }
     });
 
@@ -199,6 +202,7 @@ async function checkGameIdInDataBase(id) {
 let createOrJoin, gameId, gameRef;
 let playerId, playerRef, secondPlayerRef;
 let secondPlayer, currPlayer;
+
 
 document.addEventListener("DOMContentLoaded", async function(){
     const urlParams = new URLSearchParams(window.location.search);
