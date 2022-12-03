@@ -24,6 +24,12 @@ const loadingScreen = () => {
     document.getElementById("onlineText").style.visibility = "visible";
 }
 
+const addBoardToDatabase = (board) => {
+    const database = firebase.database();
+    const boardRef = database.ref(`games/${gameId}/board`);
+    boardRef.set(board.toArrayRepresentation());
+    database.ref(`games/${gameId}/isGameStarted`).set(true);
+}
 
 function startFirebase() {
 
@@ -68,6 +74,9 @@ function startFirebase() {
 function initGameCreate() {
     const database = firebase.database();
     const allPlayerRef = database.ref(`games/${gameId}/players/`);
+    database.ref(`games/${gameId}/isGameStarted`).set(false);
+    database.ref(`games/${gameId}/isGameStarted`).onDisconnect().remove();
+
 
     // ! cahange to board value change
     // allPlayerRef.on('value', (snapshot) => {
@@ -152,6 +161,7 @@ function initGameJoin() {
 function startOnlineGame() {
     index.megaBoard.reset(index.globals);
     removeWaitScreen();
+    addBoardToDatabase(index.megaBoard);
     index.setClickListeners(true);
 }
 
@@ -164,7 +174,7 @@ async function checkGameIdInDataBase(id) {
             let games = snapshot.val() || {};
             Object.keys(games).forEach((key) => {
                 console.log(key);
-                if (key == id) {
+                if (key == id && games[key].isGameStarted == false) {
                     success = true;
                     console.log("object found");
                     return;
@@ -184,7 +194,7 @@ let createOrJoin, gameId, gameRef;
 let playerId, playerRef, secondPlayerRef;
 let secondPlayer, currPlayer;
 
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded", async function(){
     const urlParams = new URLSearchParams(window.location.search);
     gameId = urlParams.get("gameId");
 
@@ -198,12 +208,17 @@ document.addEventListener("DOMContentLoaded", function(){
         createOrJoin = "create"
         startFirebase();
     }
-    else if (checkGameIdInDataBase(gameId)) {
+    else if (await checkGameIdInDataBase(gameId)) {
         if (urlParams.get("player") === "o") {
             loadingScreen();
             // start firebase and wait for other player
             createOrJoin = "join"
             startFirebase();
+        }
+        else {
+            // game id not found in database
+            window.alert("Game id not found");
+            window.location.href = "/index.html";
         }
     }
     else {

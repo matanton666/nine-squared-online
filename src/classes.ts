@@ -128,6 +128,40 @@ export class MegaBoard {
         this.boards = [];
     }
 
+    // : string{
+    //     let json = "[";
+    //     for (let i = 0; i < this.boards.length; i++) {
+    //         json += this.boards[i].toJsonRepresentation();
+    //         if (i !== this.boards.length - 1) json += ",";
+    //     }
+    //     json += "]";
+    //     return json;
+    // }
+
+    // turns the board into a small representation of the the mini boards as a player array
+    public toArrayRepresentation(): Player[][] {
+        const arr: Player[][] = [];
+        for (let i = 0; i < MINI_SIZE; i++) {
+            arr.push([]);
+            for (let j = 0; j < MINI_SIZE; j++) {
+                arr[i].push(this.boards[i*MINI_SIZE + j].winner);
+            }
+        }
+        return arr;
+    }
+
+    // converts from the array representation to the board
+    public toBoardFromArr(arr: Player[][]): void {
+        for (let i = 0; i < MINI_SIZE; i++) {
+            for (let j = 0; j < MINI_SIZE; j++) {
+                this.boards[i*MINI_SIZE + j].winner = arr[i][j];
+            }
+        }
+    }
+
+    //TODO: add to array representation for the small squares in the mini boards (make an array of objects with {winner, buttons})
+    
+
 
     /**
      * creates the game board of one big table with 9 mini tables in it

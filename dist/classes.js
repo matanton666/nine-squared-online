@@ -69,6 +69,23 @@ export class MegaBoard {
         });
         this.boards = [];
     }
+    toArrayRepresentation() {
+        const arr = [];
+        for (let i = 0; i < MINI_SIZE; i++) {
+            arr.push([]);
+            for (let j = 0; j < MINI_SIZE; j++) {
+                arr[i].push(this.boards[i * MINI_SIZE + j].winner);
+            }
+        }
+        return arr;
+    }
+    toBoardFromArr(arr) {
+        for (let i = 0; i < MINI_SIZE; i++) {
+            for (let j = 0; j < MINI_SIZE; j++) {
+                this.boards[i * MINI_SIZE + j].winner = arr[i][j];
+            }
+        }
+    }
     createBoard() {
         let count = 0;
         const boardTable = document.getElementById("board");

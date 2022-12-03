@@ -126,6 +126,7 @@ function startGame(globals) {
     const gameId = urlParams.get('gameId');
     if (gameId === "0") {
         document.getElementById("gameID").style.visibility = "hidden";
+        document.getElementById("reset").style.visibility = "visible";
         document.getElementById("onlineText").style.visibility = "hidden";
         document.getElementById("copy").style.visibility = "hidden";
         document.getElementById("startOnlineGame").style.visibility = "hidden";
