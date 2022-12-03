@@ -138,28 +138,27 @@ export class MegaBoard {
     //     return json;
     // }
 
-    // turns the board into a small representation of the the mini boards as a player array
-    public toArrayRepresentation(): Player[][] {
-        const arr: Player[][] = [];
-        for (let i = 0; i < MINI_SIZE; i++) {
-            arr.push([]);
-            for (let j = 0; j < MINI_SIZE; j++) {
-                arr[i].push(this.boards[i*MINI_SIZE + j].winner);
-            }
+    // to array representation for the small squares in the mini boards (make an array of objects with {winner, buttons})
+    public toJsonRepresentation(): string {
+        let json = "[";
+        for (let i = 0; i < this.boards.length; i++) {
+            json += this.boards[i].toJsonRepresentation();
+            if (i !== this.boards.length - 1) json += ",";
         }
-        return arr;
+        json += "]";
+        return json;
     }
 
-    // converts from the array representation to the board
-    public toBoardFromArr(arr: Player[][]): void {
+    // converts from the json representation to the board
+    public fromJsonRepresentation(json: string): void {
+        const arr = JSON.parse(json);
         for (let i = 0; i < MINI_SIZE; i++) {
             for (let j = 0; j < MINI_SIZE; j++) {
-                this.boards[i*MINI_SIZE + j].winner = arr[i][j];
+                this.boards[i*MINI_SIZE + j].winner = arr[i][j].winner;
+                this.boards[i*MINI_SIZE + j].fromJsonRepresentation(arr[i][j].buttons);
             }
         }
     }
-
-    //TODO: add to array representation for the small squares in the mini boards (make an array of objects with {winner, buttons})
     
 
 
@@ -273,7 +272,7 @@ export class MiniBoard {
     element: HTMLTableElement;
     winner: Player;
     image: TicImage;
-
+    
     /**
      * constructs the mini board and sets style
      * @param id id of the mini board
@@ -284,7 +283,7 @@ export class MiniBoard {
         this.buttons = [];
         this.element = element;
         this.winner = Player.none;
-
+        
         // set element settings
         this.element.id = this.id;
         this.element.className = "mini-board";
@@ -294,7 +293,7 @@ export class MiniBoard {
         
         this.image = this.createImage("", Player.none);
     }
-
+    
     /**
      * creates all of the buttons inside of the mini board
      */
@@ -303,21 +302,21 @@ export class MiniBoard {
         for(let l = 0; l < MINI_SIZE; l++){
             // every mini board row
             const miniRow = document.createElement("tr");
-
+            
             for(let m = 0; m < MINI_SIZE; m++){
                 // create every button in mini board 
                 const td = document.createElement("td");
                 const btn = new Button(`button-${count}`, document.createElement("button"), parseInt(this.id));
                 this.buttons.push(btn);
                 td.appendChild(btn.element);
-
+                
                 miniRow.appendChild(td);
                 count++;
             }
             this.element.appendChild(miniRow);
         }
     }
-
+    
     /**
      * create the images on top of the mini board for x and o and tie
      * @param path path to the image
@@ -329,10 +328,10 @@ export class MiniBoard {
         img.src = path;
         // position the image in the middle of the mini board
         this.element.appendChild(img);
-
+        
         return new TicImage(parseInt(this.id), img, typ, 0);
     }
-
+    
     // set image new path
     public setImage(type: Player) {
         if (this.image.type === Player.none){ // check if image is not already set
@@ -346,7 +345,7 @@ export class MiniBoard {
             this.image.type = type;
         }
     }
-
+    
     // set image opacity to visible and position to fronts
     public setImageVisable() {
         if (this.image.type !== Player.none) {
@@ -354,11 +353,30 @@ export class MiniBoard {
             this.image.setPosition(1);
         }
     }
-
+    
     // set image opacity to invisible and position to black
     public setImageInvisable() {
         if (this.image.type !== Player.none) {
             this.image.setPosition(-1);
+        }
+    }
+    public toJsonRepresentation() {
+        let json = "{";
+        json += `"w": "${this.winner}",`;
+        json += `"btns": [`;
+        for (let i = 0; i < this.buttons.length; i++) {
+            json += this.buttons[i].toJsonRepresentation();
+            if (i !== this.buttons.length - 1) json += ",";
+        }
+        json += `]}`;
+        return json;
+    }
+
+    public fromJsonRepresentation(json: string) {
+        const obj = JSON.parse(json);
+        this.winner = obj.w;
+        for (let i = 0; i < this.buttons.length; i++) {
+            this.buttons[i].fromJsonRepresentation(obj.btns[i]);
         }
     }
 }
@@ -434,6 +452,15 @@ export class Button implements IButton {
                 parent.element.style.scale = "1";
             }
         }
+    }
+
+    public toJsonRepresentation() {
+        return `{ "id": "${this.id.split("-")[1]}", "ocu": "${this.ocupence}" }`;
+    }
+    public fromJsonRepresentation(json: string) {
+        const obj = JSON.parse(json);
+        this.id = "button-" + obj.id;
+        this.ocupence = obj.ocu;
     }
 }
 

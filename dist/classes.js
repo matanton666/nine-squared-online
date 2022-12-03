@@ -69,20 +69,22 @@ export class MegaBoard {
         });
         this.boards = [];
     }
-    toArrayRepresentation() {
-        const arr = [];
-        for (let i = 0; i < MINI_SIZE; i++) {
-            arr.push([]);
-            for (let j = 0; j < MINI_SIZE; j++) {
-                arr[i].push(this.boards[i * MINI_SIZE + j].winner);
-            }
+    toJsonRepresentation() {
+        let json = "[";
+        for (let i = 0; i < this.boards.length; i++) {
+            json += this.boards[i].toJsonRepresentation();
+            if (i !== this.boards.length - 1)
+                json += ",";
         }
-        return arr;
+        json += "]";
+        return json;
     }
-    toBoardFromArr(arr) {
+    toBoardFromJson(json) {
+        const arr = JSON.parse(json);
         for (let i = 0; i < MINI_SIZE; i++) {
             for (let j = 0; j < MINI_SIZE; j++) {
-                this.boards[i * MINI_SIZE + j].winner = arr[i][j];
+                this.boards[i * MINI_SIZE + j].winner = arr[i][j].winner;
+                this.boards[i * MINI_SIZE + j].fromJsonRepresentation(arr[i][j].buttons);
             }
         }
     }
@@ -207,6 +209,25 @@ export class MiniBoard {
             this.image.setPosition(-1);
         }
     }
+    toJsonRepresentation() {
+        let json = "{";
+        json += `"w": "${this.winner}",`;
+        json += `"btns": [`;
+        for (let i = 0; i < this.buttons.length; i++) {
+            json += this.buttons[i].toJsonRepresentation();
+            if (i !== this.buttons.length - 1)
+                json += ",";
+        }
+        json += `]}`;
+        return json;
+    }
+    fromJsonRepresentation(json) {
+        const obj = JSON.parse(json);
+        this.winner = obj.w;
+        for (let i = 0; i < this.buttons.length; i++) {
+            this.buttons[i].fromJsonRepresentation(obj.btns[i]);
+        }
+    }
 }
 export class Button {
     constructor(id, element, parent) {
@@ -249,6 +270,14 @@ export class Button {
                 parent.element.style.scale = "1";
             }
         };
+    }
+    toJsonRepresentation() {
+        return `{ "id": "${this.id.split("-")[1]}", "ocu": "${this.ocupence}" }`;
+    }
+    fromJsonRepresentation(json) {
+        const obj = JSON.parse(json);
+        this.id = "button-" + obj.id;
+        this.ocupence = obj.ocu;
     }
 }
 //# sourceMappingURL=classes.js.map

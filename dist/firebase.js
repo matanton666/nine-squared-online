@@ -27,8 +27,18 @@ const loadingScreen = () => {
 const addBoardToDatabase = (board) => {
     const database = firebase.database();
     const boardRef = database.ref(`games/${gameId}/board`);
-    boardRef.set(board.toArrayRepresentation());
+    boardRef.set(board.toJsonRepresentation());
+    boardRef.onDisconnect().remove();
     database.ref(`games/${gameId}/isGameStarted`).set(true);
+}
+
+const setBoardChangeListener = (database) => {
+    database.ref(`games/${gameId}/board`).on('value', (snapshot) => {
+        // occurs on whenever change in the database
+        let board = snapshot.val() || {};
+        index.megaBoard.fromJsonRepresentation(board);
+    });
+    index.setClickListeners(true);
 }
 
 function startFirebase() {
@@ -119,19 +129,15 @@ function initGameJoin() {
     const database = firebase.database();
     const allPlayerRef = database.ref(`games/${gameId}/players/`);
 
-    // ! change to board value change
-    // allPlayerRef.on('value', (snapshot) => {
-    //     // occurs on whenever change in the database
-    //     let players = snapshot.val() || {};
-    //     Object.keys(players).forEach((key) => {
-    //         if (players[key] == secondPlayer) {
-    //             // player value changed
-    //         }
-    //         else if (players[key] == currPlayer) {
-    //             // player value changed
-    //         }
-    //     });
-    // });
+    database.ref(`games/${gameId}/isGameStarted`).on('value', (snapshot) => {
+        // occurs on whenever change in the database
+        let isStarted = snapshot.val() || {};
+        if (isStarted == true) {
+            console.log("game started");
+            removeWaitScreen();
+            setBoardChangeListener();
+        }
+    });
 
     allPlayerRef.on('child_added', (snapshot) => {
         // occures on new node on tree
