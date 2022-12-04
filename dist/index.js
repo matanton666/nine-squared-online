@@ -1,13 +1,13 @@
 import * as classes from "./classes.js";
 const MEGA_SIZE = 9;
-const randomBoard = () => {
+export const randomBoard = () => {
     let rand = 0;
     do {
         rand = Math.floor(Math.random() * MEGA_SIZE);
     } while (allFullBtn(megaBoard.boards[rand].buttons));
     return rand;
 };
-function disableMiniBoardsByButton(id) {
+export function disableMiniBoardsByButton(id) {
     megaBoard.disableAllButtons();
     id = id.split("-")[1];
     let playingBoard = megaBoard.boards[parseInt(id)];
@@ -23,7 +23,7 @@ function disableMiniBoardsByButton(id) {
 }
 const allEqualMini = (arr) => arr.every(v => v.winner === arr[0].winner && v.winner !== classes.Player.none && v.winner !== classes.Player.tie);
 const allEqualButton = (arr) => arr.every(v => typeof v !== "undefined" && v.ocupence === arr[0].ocupence && v.ocupence !== classes.Player.none);
-const allFullBtn = (arr) => arr.every(v => v.ocupence !== classes.Player.none);
+export const allFullBtn = (arr) => arr.every(v => v.ocupence !== classes.Player.none);
 const allFullMini = (arr) => arr.every(v => v.winner !== classes.Player.none);
 const checkMiniBoards = (all) => {
     for (const list of all) {
@@ -62,7 +62,7 @@ function checkBoardWin(board) {
     winner = winner === classes.Player.none ? allFullBtn(board) ? classes.Player.tie : winner : winner;
     return winner;
 }
-function afterTurn(element, id, parentId) {
+export function afterTurn(element, id, parentId) {
     element.disabled = true;
     const miniWin = checkBoardWin(megaBoard.boards[parentId].buttons);
     megaBoard.boards[parentId].winner = miniWin === classes.Player.none ? classes.Player.none : miniWin;

@@ -7,7 +7,7 @@ const MEGA_SIZE = 9; // button amount in mega board
  * gives a random number between 0 and 9 for a random mini board to be selected
  * @returns id of free mini board
  */
-const randomBoard = (): number => {
+export const randomBoard = (): number => {
     let rand = 0;
     do{
         rand = Math.floor(Math.random() * MEGA_SIZE);
@@ -20,7 +20,7 @@ const randomBoard = (): number => {
  * disables all buttons in the board except the one that can be played
  * @param id id of button that was clicked
  */
-function disableMiniBoardsByButton(id: string){
+export function disableMiniBoardsByButton(id: string){
 
     megaBoard.disableAllButtons();
 
@@ -47,7 +47,7 @@ const allEqualMini = (arr: classes.MiniBoard[]) => arr.every(v => v.winner === a
 const allEqualButton = (arr: classes.Button[]) => arr.every(v => typeof v !== "undefined" && v.ocupence === arr[0].ocupence && v.ocupence !== classes.Player.none); 
 
 // checks if a certain board is full (Btn -> a mini board) (MiniBoard -> the mega board)
-const allFullBtn = (arr: classes.Button[]) => arr.every(v => v.ocupence !== classes.Player.none);
+export const allFullBtn = (arr: classes.Button[]) => arr.every(v => v.ocupence !== classes.Player.none);
 const allFullMini = (arr: classes.MiniBoard[]) => arr.every(v => v.winner !== classes.Player.none);
 
 // checks if a player won in the mega board
@@ -112,7 +112,7 @@ function checkBoardWin(board: classes.MiniBoard[] | classes.Button[]): classes.P
  * @param parentId the id of the parent board of the button clicked (the mini board)
  * @returns none
  */
-function afterTurn(element: HTMLButtonElement, id: string, parentId: number){
+export function afterTurn(element: HTMLButtonElement, id: string, parentId: number){
     element.disabled = true;
     // check if win in mini board
     const miniWin = checkBoardWin(megaBoard.boards[parentId].buttons);

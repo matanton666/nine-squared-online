@@ -28,8 +28,6 @@ const addBoardToDatabase = (board) => {
     const database = firebase.database();
     const boardRef = database.ref(`games/${gameId}/board`);
     boardRef.set(board.toJsonRepresentation());
-    boardRef.onDisconnect().remove();
-    database.ref(`games/${gameId}/isGameStarted`).set(true);
 }
 
 const setBoardChangeListener = (database) => {
@@ -37,10 +35,41 @@ const setBoardChangeListener = (database) => {
         // occurs on whenever change in the database
         let board = snapshot.val() || {};
         index.megaBoard.fromJsonRepresentation(board);
-        console.log("board changed");
-        console.log(index.megaBoard);
     });
-    index.setClickListeners(true);
+    
+    database.ref(`games/${gameId}/currentTurn`).on('value', (snapshot) => {
+        // occurs on whenever change in the database
+        let val = snapshot.val() || {};
+        if (val == currPlayer.xOro) {
+            firebase.database().ref(`games/${gameId}/lastMove`).once('value').then((snapshot) => {
+                index.disableMiniBoardsByButton(snapshot.val());
+            })
+        }
+        else {
+            index.megaBoard.disableAllButtons();
+        }
+    });
+    index.setClickListeners();
+    setListenersForButtons();
+}
+
+const setListenersForButtons = () => {
+    index.megaBoard.boards.forEach((board) => {
+        board.buttons.forEach((button) => {
+            console.log(button);
+            button.element.onclick = () => {
+                if (button.ocupence === classes.Player.none) {
+                    button.setOcupence(currPlayer.xOro);
+                    firebase.database().ref(`games/${gameId}/lastMove`).set(button.id);
+                    addBoardToDatabase(index.megaBoard);
+                    index.afterTurn(button.element, button.id, button.parentId);
+                    if (index.megaBoard.winner === classes.Player.none) {
+                        firebase.database().ref(`games/${gameId}/currentTurn`).set(currPlayer.xOro === classes.Player.X ? classes.Player.O : classes.Player.X);
+                    }
+                }
+            }
+        });
+    });
 }
 
 function startFirebase() {
@@ -86,8 +115,10 @@ function startFirebase() {
 function initGameCreate() {
     const database = firebase.database();
     const allPlayerRef = database.ref(`games/${gameId}/players/`);
-    database.ref(`games/${gameId}/isGameStarted`).set(false);
-    database.ref(`games/${gameId}/isGameStarted`).onDisconnect().remove();
+    database.ref(`games/${gameId}/currentTurn`).set(classes.Player.none);
+    database.ref(`games/${gameId}/currentTurn`).onDisconnect().remove();
+    firebase.database().ref(`games/${gameId}/lastMove`).set("button-" + 4);
+    firebase.database().ref(`games/${gameId}/lastMove`).onDisconnect().remove();
 
     allPlayerRef.on('child_added', (snapshot) => {
         // occures on new node on tree
@@ -116,10 +147,10 @@ function initGameJoin() {
     const database = firebase.database();
     const allPlayerRef = database.ref(`games/${gameId}/players/`);
 
-    database.ref(`games/${gameId}/isGameStarted`).on('value', (snapshot) => {
+    database.ref(`games/${gameId}/currentTurn`).on('value', (snapshot) => {
         // occurs on whenever change in the database
-        let isStarted = snapshot.val() || {};
-        if (isStarted == true) {
+        let val = snapshot.val() || {};
+        if (val == classes.Player.X) {
             console.log("game started");
             removeWaitScreen();
             index.megaBoard.reset(index.globals);
@@ -157,8 +188,9 @@ function startOnlineGame() {
     index.megaBoard.reset(index.globals);
     removeWaitScreen();
     addBoardToDatabase(index.megaBoard);
-    index.setClickListeners(true);
     setBoardChangeListener(firebase.database());
+    firebase.database().ref(`games/${gameId}/board`).onDisconnect().remove();
+    firebase.database().ref(`games/${gameId}/currentTurn`).set(classes.Player.X);
 }
 
 async function checkGameIdInDataBase(id) {
@@ -170,7 +202,7 @@ async function checkGameIdInDataBase(id) {
             let games = snapshot.val() || {};
             Object.keys(games).forEach((key) => {
                 console.log(key);
-                if (key == id && games[key].isGameStarted == false) {
+                if (key == id && games[key].currentTurn == classes.Player.none) {
                     success = true;
                     console.log("object found");
                     return;

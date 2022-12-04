@@ -81,7 +81,6 @@ export class MegaBoard {
     }
     fromJsonRepresentation(json) {
         const arr = JSON.parse(json);
-        console.log(arr);
         for (let i = 0; i < MINI_SIZE; i++) {
             for (let j = 0; j < MINI_SIZE; j++) {
                 this.boards[i * MINI_SIZE + j].winner = arr[i * MINI_SIZE + j].w;
