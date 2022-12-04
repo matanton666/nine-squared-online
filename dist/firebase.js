@@ -260,4 +260,4 @@ document.addEventListener("DOMContentLoaded", async function(){
         window.location.href = "/index.html";
     }
 });
-// TODO: confugure firebase rules
+// TODO: configure firebase rules
