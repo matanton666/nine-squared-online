@@ -60,7 +60,6 @@ const setBoardChangeListener = (database) => {
 const setListenersForButtons = () => {
     index.megaBoard.boards.forEach((board) => {
         board.buttons.forEach((button) => {
-            console.log(button);
             button.element.onclick = () => {
                 if (button.ocupence === classes.Player.none) {
                     button.setOcupence(currPlayer.xOro);
@@ -205,7 +204,6 @@ async function checkGameIdInDataBase(id) {
         await gamesRef.once("value", (snapshot) => {
             let games = snapshot.val() || {};
             Object.keys(games).forEach((key) => {
-                console.log(key);
                 if (key == id && games[key].currentTurn == classes.Player.none) {
                     success = true;
                     console.log("object found");
