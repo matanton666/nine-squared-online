@@ -260,3 +260,4 @@ document.addEventListener("DOMContentLoaded", async function(){
         window.location.href = "/index.html";
     }
 });
+// TODO: confugure firebase rules
