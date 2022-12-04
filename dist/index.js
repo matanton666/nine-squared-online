@@ -41,7 +41,7 @@ const checkButtons = (all) => {
     }
     return classes.Player.none;
 };
-function checkBoardWin(board) {
+export function checkBoardWin(board) {
     let col1 = [], col2 = [], col3 = [], diag1 = [], diag2 = [], row1 = [], row2 = [], row3 = [];
     let winner = classes.Player.none;
     row1.push(board[0], board[3], board[6]);

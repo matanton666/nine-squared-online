@@ -75,7 +75,7 @@ const checkButtons = (all: classes.Button[][]): classes.Player => {
  * @param board the board to check for a winner in (mini board or mega board)
  * @returns a winner of type Player (none if no winner)
  */
-function checkBoardWin(board: classes.MiniBoard[] | classes.Button[]): classes.Player {
+export function checkBoardWin(board: classes.MiniBoard[] | classes.Button[]): classes.Player {
     let col1 = [], col2 = [], col3 = [], diag1 = [], diag2 = [], row1 = [], row2 = [], row3 = [];
     let winner = classes.Player.none;
     // get all rows and columns and diagonals to checks

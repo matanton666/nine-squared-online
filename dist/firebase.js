@@ -42,7 +42,11 @@ const setBoardChangeListener = (database) => {
         let val = snapshot.val() || {};
         if (val == currPlayer.xOro) {
             firebase.database().ref(`games/${gameId}/lastMove`).once('value').then((snapshot) => {
-                index.disableMiniBoardsByButton(snapshot.val());
+                let vals = snapshot.val() || {};
+                index.disableMiniBoardsByButton(vals[0]);
+                const miniWin = index.checkBoardWin(index.megaBoard.boards[vals[1]].buttons);
+                index.megaBoard.boards[vals[1]].winner = miniWin === classes.Player.none ? classes.Player.none : miniWin;
+                index.megaBoard.boards[vals[1]].setImage(miniWin);
             })
         }
         else {
@@ -60,7 +64,7 @@ const setListenersForButtons = () => {
             button.element.onclick = () => {
                 if (button.ocupence === classes.Player.none) {
                     button.setOcupence(currPlayer.xOro);
-                    firebase.database().ref(`games/${gameId}/lastMove`).set(button.id);
+                    firebase.database().ref(`games/${gameId}/lastMove`).set([button.id, button.parentId]);
                     addBoardToDatabase(index.megaBoard);
                     index.afterTurn(button.element, button.id, button.parentId);
                     if (index.megaBoard.winner === classes.Player.none) {
@@ -117,7 +121,7 @@ function initGameCreate() {
     const allPlayerRef = database.ref(`games/${gameId}/players/`);
     database.ref(`games/${gameId}/currentTurn`).set(classes.Player.none);
     database.ref(`games/${gameId}/currentTurn`).onDisconnect().remove();
-    firebase.database().ref(`games/${gameId}/lastMove`).set("button-" + 4);
+    firebase.database().ref(`games/${gameId}/lastMove`).set(["button-" + 4, 4]);
     firebase.database().ref(`games/${gameId}/lastMove`).onDisconnect().remove();
 
     allPlayerRef.on('child_added', (snapshot) => {
