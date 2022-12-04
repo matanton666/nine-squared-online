@@ -5,12 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nine Squared</title>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="style.css">
     <!-- favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="./images/favicon_io/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon_io/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="./images/favicon_io/favicon-16x16.png">
-    <link rel="manifest" href="./images/favicon_io/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="images/favicon_io/site.webmanifest">
 </head>
 <body>
     <h1 style="text-align: center;">Nine Squared</h1>
@@ -84,7 +84,7 @@
     }
     
     document.getElementById("offline game").addEventListener("click", function(){
-        window.location.href = "./game.html?gameId=0";
+        window.location.href = "game.html?gameId=0";
     });
     document.getElementById("online game").addEventListener("click", function(){
         document.getElementById("online btns").style.visibility = "visible";
@@ -96,7 +96,7 @@
             let id = document.getElementById("game id").value;
             console.log(typeof id);
             if (id.length == 5) {
-                window.location.href = "./game.html?gameId=" + id + "&player=o";
+                window.location.href = "game.html?gameId=" + id + "&player=o";
             }
             else {
                 alert("invalid game id");
@@ -105,7 +105,7 @@
     });
     document.getElementById("create game").addEventListener("click", function(){
         // open game window with random game id
-        window.location.href = "./game.html?gameId=" + randomId() + "&player=x";
+        window.location.href = "game.html?gameId=" + randomId() + "&player=x";
         //TODO: check if id is not already in use (do in game.html)
     });
     
