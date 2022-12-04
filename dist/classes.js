@@ -81,10 +81,11 @@ export class MegaBoard {
     }
     fromJsonRepresentation(json) {
         const arr = JSON.parse(json);
+        console.log(arr);
         for (let i = 0; i < MINI_SIZE; i++) {
             for (let j = 0; j < MINI_SIZE; j++) {
-                this.boards[i * MINI_SIZE + j].winner = arr[i].w;
-                this.boards[i * MINI_SIZE + j].fromJsonRepresentation(JSON.stringify(arr[i].btns));
+                this.boards[i * MINI_SIZE + j].winner = arr[i * MINI_SIZE + j].w;
+                this.boards[i * MINI_SIZE + j].fromJsonRepresentation(JSON.stringify(arr[i * MINI_SIZE + j].btns));
             }
         }
     }
@@ -223,6 +224,7 @@ export class MiniBoard {
     }
     fromJsonRepresentation(json) {
         const obj = JSON.parse(json);
+        this.setImage(this.winner);
         for (let i = 0; i < this.buttons.length; i++) {
             this.buttons[i].fromJsonRepresentation(JSON.stringify(obj[i]));
         }
@@ -277,6 +279,7 @@ export class Button {
         const obj = JSON.parse(json);
         this.id = "button-" + obj.id;
         this.ocupence = obj.ocu;
+        this.ocupence == Player.none ? null : this.setOcupence(this.ocupence);
     }
 }
 //# sourceMappingURL=classes.js.map

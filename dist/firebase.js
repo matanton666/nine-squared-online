@@ -36,8 +36,9 @@ const setBoardChangeListener = (database) => {
     database.ref(`games/${gameId}/board`).on('value', (snapshot) => {
         // occurs on whenever change in the database
         let board = snapshot.val() || {};
-        console.log(index.megaBoard);
         index.megaBoard.fromJsonRepresentation(board);
+        console.log("board changed");
+        console.log(index.megaBoard);
     });
     index.setClickListeners(true);
 }
@@ -87,21 +88,6 @@ function initGameCreate() {
     const allPlayerRef = database.ref(`games/${gameId}/players/`);
     database.ref(`games/${gameId}/isGameStarted`).set(false);
     database.ref(`games/${gameId}/isGameStarted`).onDisconnect().remove();
-
-
-    // ! cahange to board value change
-    // allPlayerRef.on('value', (snapshot) => {
-    //     // occurs on whenever change in the database
-    //     let players = snapshot.val() || {};
-    //     Object.keys(players).forEach((key) => {
-    //         if (players[key] == secondPlayer) {
-    //             // player value changed
-    //         }
-    //         else if (players[key] == currPlayer) {
-    //             // player value changed
-    //         }
-    //     });
-    // });
 
     allPlayerRef.on('child_added', (snapshot) => {
         // occures on new node on tree
@@ -172,6 +158,7 @@ function startOnlineGame() {
     removeWaitScreen();
     addBoardToDatabase(index.megaBoard);
     index.setClickListeners(true);
+    setBoardChangeListener(firebase.database());
 }
 
 async function checkGameIdInDataBase(id) {

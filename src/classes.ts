@@ -152,16 +152,16 @@ export class MegaBoard {
     // converts from the json representation to the board
     public fromJsonRepresentation(json: string): void {
         const arr = JSON.parse(json);
+        console.log(arr);
         for (let i = 0; i < MINI_SIZE; i++) {
             for (let j = 0; j < MINI_SIZE; j++) {
-                this.boards[i*MINI_SIZE + j].winner = arr[i].w;
-                this.boards[i*MINI_SIZE + j].fromJsonRepresentation(JSON.stringify(arr[i].btns));
+                this.boards[i*MINI_SIZE + j].winner = arr[i*MINI_SIZE + j].w;
+                this.boards[i*MINI_SIZE + j].fromJsonRepresentation(JSON.stringify(arr[i*MINI_SIZE + j].btns));
             }
         }
     }
+
     
-
-
     /**
      * creates the game board of one big table with 9 mini tables in it
      * each mini table has 9 buttons in it
@@ -374,6 +374,7 @@ export class MiniBoard {
 
     public fromJsonRepresentation(json: string) {
         const obj = JSON.parse(json);
+        this.setImage(this.winner);
         for (let i = 0; i < this.buttons.length; i++) {
             this.buttons[i].fromJsonRepresentation(JSON.stringify(obj[i]));
         }
@@ -456,11 +457,11 @@ export class Button implements IButton {
     public toJsonRepresentation() {
         return `{ "id": "${this.id.split("-")[1]}", "ocu": "${this.ocupence}" }`;
     }
+
     public fromJsonRepresentation(json: string) {
         const obj = JSON.parse(json);
         this.id = "button-" + obj.id;
         this.ocupence = obj.ocu;
+        this.ocupence == Player.none ? null:this.setOcupence(this.ocupence);
     }
 }
-
-//TODO: fix tojsonrepresentation 
