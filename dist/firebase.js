@@ -51,9 +51,11 @@ const setBoardChangeListener = (database) => {
             firebase.database().ref(`games/${gameId}/lastMove`).once('value').then((snapshot) => {
                 let vals = snapshot.val() || {};
                 index.disableMiniBoardsByButton(vals[0]);
-                const miniWin = index.checkBoardWin(index.megaBoard.boards[vals[1]].buttons);
-                index.megaBoard.boards[vals[1]].winner = miniWin === classes.Player.none ? classes.Player.none : miniWin;
-                index.megaBoard.boards[vals[1]].setImage(miniWin);
+                if (index.megaBoard.boards[vals[1]].winner === classes.Player.none){
+                    const miniWin = index.checkBoardWin(index.megaBoard.boards[vals[1]].buttons);
+                    index.megaBoard.boards[vals[1]].winner = miniWin === classes.Player.none ? classes.Player.none : miniWin;
+                    index.megaBoard.boards[vals[1]].setImage(miniWin);
+                }
             })
         }
         else {
