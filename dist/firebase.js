@@ -34,7 +34,14 @@ const setBoardChangeListener = (database) => {
     database.ref(`games/${gameId}/board`).on('value', (snapshot) => {
         // occurs on whenever change in the database
         let board = snapshot.val() || {};
-        index.megaBoard.fromJsonRepresentation(board);
+        try{
+            index.megaBoard.fromJsonRepresentation(board);
+        }
+        catch{
+            console.log("error");
+            window.alert("other player left");
+            window.location.href = "./index.html";
+        }
     });
     
     database.ref(`games/${gameId}/currentTurn`).on('value', (snapshot) => {
@@ -204,7 +211,8 @@ async function checkGameIdInDataBase(id) {
         await gamesRef.once("value", (snapshot) => {
             let games = snapshot.val() || {};
             Object.keys(games).forEach((key) => {
-                if (key == id && games[key].currentTurn == classes.Player.none) {
+                console.log("players: ", );
+                if (key == id && Object.keys(games[key].players).length == 1) {
                     success = true;
                     console.log("object found");
                     return;
@@ -249,13 +257,13 @@ document.addEventListener("DOMContentLoaded", async function(){
         else {
             // game id not found in database
             window.alert("Game id not found");
-            window.location.href = "/index.html";
+            window.location.href = "./index.html";
         }
     }
     else {
         // game id not found in database
         window.alert("Game id not found");
-        window.location.href = "/index.html";
+        window.location.href = "./index.html";
     }
 });
 // TODO: configure firebase rules
