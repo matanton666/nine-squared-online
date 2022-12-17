@@ -1,3 +1,10 @@
 # Nine Squared
-This is a site I made using typescript of the Mega Tic Tac Toe game.  
-To play the game visit [the game website](https://sorting-algorithms.me/nine-squared-online/index.html)
+## Info
+This is a site for the Mega Tic Tac Toe game.  
+The front end is made with typescript, html and css.   
+The backend is made with firebase and javascript.  
+The game has 2 game modes, one is offline, against another player on the same device.  
+The second mode is online against another player on a seprate device.  
+## Play
+To play the game visit [the game website](https://sorting-algorithms.me/nine-squared-online/index.html)  
+or download the android [app version](https://github.com/matanton666/nine-squared-online/raw/firebase/android_apk/nine-squared.apk)
